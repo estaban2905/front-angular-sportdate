@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build": "ng build && xcopy /E /I /Y \"dist\\front-angualar-sportdate\\browser\\*\" \"dist\\\" && rmdir /S /Q \"dist\\front-angualar-sportdate\""
   },
   "private": true,
   "dependencies": {
