@@ -11,4 +11,8 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'front-angualar-sportdate';
+
+  constructor() {
+    console.log('esto es una prueba');
+  }
 }
