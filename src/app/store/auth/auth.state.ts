@@ -1,0 +1,96 @@
+// store/auth/auth.state.ts
+
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { State, Action, StateContext } from '@ngxs/store';
+import { tap, catchError, EMPTY } from 'rxjs';
+import { AuthService } from '@core/services/auth.service';
+import { AuthStateModel } from './auth.model';
+import { AuthActions } from './auth.actions';
+
+const DEFAULTS: AuthStateModel = {
+  user: null,
+  loading: false,
+  error: null,
+};
+
+@State<AuthStateModel>({
+  name: 'auth',
+  defaults: DEFAULTS,
+})
+@Injectable()
+export class AuthState {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  @Action(AuthActions.SetUser)
+  setUser(ctx: StateContext<AuthStateModel>, { user }: AuthActions.SetUser) {
+    ctx.patchState({ user, error: null });
+  }
+
+  @Action(AuthActions.Login)
+  login(ctx: StateContext<AuthStateModel>, { email, password }: AuthActions.Login) {
+    ctx.patchState({ loading: true, error: null });
+    return this.authService.login(email, password).pipe(
+      tap(user => {
+        ctx.dispatch(new AuthActions.LoginSuccess(user));
+      }),
+      catchError(err => {
+        ctx.dispatch(new AuthActions.LoginFailure(this.authService.mapError(err)));
+        return EMPTY;
+      }),
+    );
+  }
+
+  @Action(AuthActions.LoginSuccess)
+  loginSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.LoginSuccess) {
+    ctx.patchState({ user, loading: false, error: null });
+    this.router.navigate(['/dashboard']);
+  }
+
+  @Action(AuthActions.LoginFailure)
+  loginFailure(ctx: StateContext<AuthStateModel>, { error }: AuthActions.LoginFailure) {
+    ctx.patchState({ loading: false, error });
+  }
+
+  @Action(AuthActions.Register)
+  register(
+    ctx: StateContext<AuthStateModel>,
+    { email, password, displayName }: AuthActions.Register,
+  ) {
+    ctx.patchState({ loading: true, error: null });
+    return this.authService.register(email, password, displayName).pipe(
+      tap(user => {
+        ctx.dispatch(new AuthActions.RegisterSuccess(user));
+      }),
+      catchError(err => {
+        ctx.dispatch(new AuthActions.RegisterFailure(this.authService.mapError(err)));
+        return EMPTY;
+      }),
+    );
+  }
+
+  @Action(AuthActions.RegisterSuccess)
+  registerSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.RegisterSuccess) {
+    ctx.patchState({ user, loading: false, error: null });
+    this.router.navigate(['/dashboard']);
+  }
+
+  @Action(AuthActions.RegisterFailure)
+  registerFailure(ctx: StateContext<AuthStateModel>, { error }: AuthActions.RegisterFailure) {
+    ctx.patchState({ loading: false, error });
+  }
+
+  @Action(AuthActions.Logout)
+  logout(ctx: StateContext<AuthStateModel>) {
+    return this.authService.logout().pipe(
+      tap(() => ctx.dispatch(new AuthActions.LogoutSuccess())),
+    );
+  }
+
+  @Action(AuthActions.LogoutSuccess)
+  logoutSuccess(ctx: StateContext<AuthStateModel>) {
+    ctx.patchState({ user: null, error: null });
+    this.router.navigate(['/login']);
+  }
+}

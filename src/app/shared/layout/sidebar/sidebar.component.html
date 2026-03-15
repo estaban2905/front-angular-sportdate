@@ -14,15 +14,9 @@
         <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Beta</p>
       </div>
     </div>
-    <button (click)="themeService.toggleTheme()"
-      class="p-2 rounded-full bg-gray-800/50 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
-      aria-label="Toggle theme">
-      @if (themeService.theme() === 'dark') {
-      <i-lucide [img]="sunIcon" class="w-4 h-4"></i-lucide>
-      } @else {
-      <i-lucide [img]="moonIcon" class="w-4 h-4"></i-lucide>
-      }
-    </button>
+
+    <!-- Settings modal (replaces theme toggle) -->
+    <app-settings-modal position="below" variant="dark" />
   </div>
 
   <!-- Navigation -->
