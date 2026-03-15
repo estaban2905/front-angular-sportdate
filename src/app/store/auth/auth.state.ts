@@ -12,6 +12,7 @@ const DEFAULTS: AuthStateModel = {
   user: null,
   loading: false,
   error: null,
+  resetPasswordSent: false,
 };
 
 @State<AuthStateModel>({
@@ -79,6 +80,40 @@ export class AuthState {
   @Action(AuthActions.RegisterFailure)
   registerFailure(ctx: StateContext<AuthStateModel>, { error }: AuthActions.RegisterFailure) {
     ctx.patchState({ loading: false, error });
+  }
+
+  @Action(AuthActions.LoginWithGoogle)
+  loginWithGoogle(ctx: StateContext<AuthStateModel>) {
+    ctx.patchState({ loading: true, error: null });
+    return this.authService.loginWithGoogle().pipe(
+      tap(user => ctx.dispatch(new AuthActions.LoginSuccess(user))),
+      catchError(err => {
+        ctx.dispatch(new AuthActions.LoginFailure(this.authService.mapError(err)));
+        return EMPTY;
+      }),
+    );
+  }
+
+  @Action(AuthActions.ResetPassword)
+  resetPassword(ctx: StateContext<AuthStateModel>, { email }: AuthActions.ResetPassword) {
+    ctx.patchState({ loading: true, error: null, resetPasswordSent: false });
+    return this.authService.sendPasswordReset(email).pipe(
+      tap(() => ctx.dispatch(new AuthActions.ResetPasswordSuccess())),
+      catchError(err => {
+        ctx.dispatch(new AuthActions.ResetPasswordFailure(this.authService.mapError(err)));
+        return EMPTY;
+      }),
+    );
+  }
+
+  @Action(AuthActions.ResetPasswordSuccess)
+  resetPasswordSuccess(ctx: StateContext<AuthStateModel>) {
+    ctx.patchState({ loading: false, error: null, resetPasswordSent: true });
+  }
+
+  @Action(AuthActions.ResetPasswordFailure)
+  resetPasswordFailure(ctx: StateContext<AuthStateModel>, { error }: AuthActions.ResetPasswordFailure) {
+    ctx.patchState({ loading: false, error, resetPasswordSent: false });
   }
 
   @Action(AuthActions.Logout)

@@ -29,4 +29,9 @@ export class AuthSelectors {
   static displayName(state: AuthStateModel): string {
     return state.user?.displayName ?? state.user?.email ?? 'Atleta';
   }
+
+  @Selector([AuthState])
+  static resetPasswordSent(state: AuthStateModel): boolean {
+    return state.resetPasswordSent;
+  }
 }

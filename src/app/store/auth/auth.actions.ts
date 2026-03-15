@@ -50,4 +50,22 @@ export namespace AuthActions {
     static readonly type = '[Auth] Set User';
     constructor(public user: AuthUser | null) {}
   }
+
+  export class LoginWithGoogle {
+    static readonly type = '[Auth] Login With Google';
+  }
+
+  export class ResetPassword {
+    static readonly type = '[Auth] Reset Password';
+    constructor(public email: string) {}
+  }
+
+  export class ResetPasswordSuccess {
+    static readonly type = '[Auth] Reset Password Success';
+  }
+
+  export class ResetPasswordFailure {
+    static readonly type = '[Auth] Reset Password Failure';
+    constructor(public error: string) {}
+  }
 }
