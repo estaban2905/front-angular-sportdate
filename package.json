@@ -7,7 +7,9 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "lint": "eslint \"src/**/*.{ts,html}\"",
-    "sonar": "node sonar.js"
+    "sonar": "node sonar.js",
+    "build:gh": "ng build --configuration production --base-href /front-angular-sportdate/",
+    "deploy:gh": "powershell -Command \"if (Test-Path docs) { Remove-Item docs -Recurse -Force }; New-Item -ItemType Directory -Path docs; Copy-Item -Recurse dist\\sportdate\\browser\\* docs; Copy-Item docs\\index.html docs\\404.html\""
   },
   "private": true,
   "dependencies": {
@@ -36,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.57.0",
     "autoprefixer": "^10.4.27",
+    "cpy-cli": "^7.0.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
