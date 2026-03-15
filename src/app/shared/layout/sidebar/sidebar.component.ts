@@ -5,23 +5,22 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeService } from '../../../services/theme.service';
 import { XpProgressBarComponent } from '../../ui/xp-progress-bar/xp-progress-bar.component';
+import { SettingsModalComponent } from '../../ui/settings-modal/settings-modal.component';
 import { USER_STATS } from '../../../data';
 import {
   LucideAngularModule,
-  LayoutDashboard, Heart, Calendar, Users, Trophy, MessageCircle, Flame, Sun, Moon,
+  LayoutDashboard, Heart, Calendar, Users, Trophy, MessageCircle, Flame,
 } from 'lucide-angular';
 import { APP_ROUTES } from '../../../constants/app-routing.constants';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [LucideAngularModule, XpProgressBarComponent, RouterLink, RouterLinkActive],
+  imports: [LucideAngularModule, XpProgressBarComponent, SettingsModalComponent, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
-  readonly sunIcon = Sun;
-  readonly moonIcon = Moon;
   readonly flameIcon = Flame;
   readonly userStats = USER_STATS;
 

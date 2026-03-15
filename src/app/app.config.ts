@@ -1,10 +1,13 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { withNgxsReduxDevtoolsPlugin } from '@ngxs/devtools-plugin';
-import { provideStore } from '@ngxs/store';
+import { provideStore, Store } from '@ngxs/store';
+import { take } from 'rxjs/operators';
 
 import { routes } from './app.routes';
+import { AuthService } from '@core/services/auth.service';
+import { AuthActions, AuthState } from '@store/auth';
 import { UserState } from '@store/user';
 import { EventsState } from '@store/events';
 import { LeaderboardState } from '@store/leaderboard';
@@ -16,25 +19,46 @@ import { EventRepository } from '@core/repositories/abstractions/event.repositor
 import { LeaderboardRepository } from '@core/repositories/abstractions/leaderboard.repository';
 import { CommunityRepository } from '@core/repositories/abstractions/community.repository';
 import { ChatRepository } from '@core/repositories/abstractions/chat.repository';
-import { InMemoryUserRepository } from '@core/repositories/in-memory/in-memory-user.repository';
-import { InMemoryEventRepository } from '@core/repositories/in-memory/in-memory-event.repository';
-import { InMemoryLeaderboardRepository } from '@core/repositories/in-memory/in-memory-leaderboard.repository';
-import { InMemoryCommunityRepository } from '@core/repositories/in-memory/in-memory-community.repository';
-import { InMemoryChatRepository } from '@core/repositories/in-memory/in-memory-chat.repository';
+import { FirestoreUserRepository } from '@core/repositories/firestore/firestore-user.repository';
+import { FirestoreEventRepository } from '@core/repositories/firestore/firestore-event.repository';
+import { FirestoreLeaderboardRepository } from '@core/repositories/firestore/firestore-leaderboard.repository';
+import { FirestoreCommunityRepository } from '@core/repositories/firestore/firestore-community.repository';
+import { FirestoreChatRepository } from '@core/repositories/firestore/firestore-chat.repository';
+import { provideFirebase } from '@core/firebase/firebase.provider';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimations(),
+    provideAnimationsAsync(),
+    provideFirebase(),
     provideStore(
-      [UserState, EventsState, LeaderboardState, CommunitiesState, ChatState, MatchState],
+      [AuthState, UserState, EventsState, LeaderboardState, CommunitiesState, ChatState, MatchState],
       withNgxsReduxDevtoolsPlugin(),
     ),
-    { provide: UserRepository, useClass: InMemoryUserRepository },
-    { provide: EventRepository, useClass: InMemoryEventRepository },
-    { provide: LeaderboardRepository, useClass: InMemoryLeaderboardRepository },
-    { provide: CommunityRepository, useClass: InMemoryCommunityRepository },
-    { provide: ChatRepository, useClass: InMemoryChatRepository },
+
+    /**
+     * Resolves the Firebase auth session BEFORE the router runs any guards.
+     * Without this, on page refresh the store has user=null when guards execute,
+     * causing a redirect to /login even for authenticated users.
+     */
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      const store = inject(Store);
+      return new Promise<void>(resolve => {
+        authService.authState$.pipe(take(1)).subscribe({
+          next: user => {
+            store.dispatch(new AuthActions.SetUser(user)).subscribe(() => resolve());
+          },
+          error: () => resolve(),
+        });
+      });
+    }),
+
+    { provide: UserRepository, useClass: FirestoreUserRepository },
+    { provide: EventRepository, useClass: FirestoreEventRepository },
+    { provide: LeaderboardRepository, useClass: FirestoreLeaderboardRepository },
+    { provide: CommunityRepository, useClass: FirestoreCommunityRepository },
+    { provide: ChatRepository, useClass: FirestoreChatRepository },
   ],
 };
