@@ -1,6 +1,7 @@
 export const APP_ROUTES = {
-  LOGIN:    'login',
-  REGISTER: 'register',
+  LOGIN:            'login',
+  REGISTER:         'register',
+  FORGOT_PASSWORD:  'forgot-password',
   DASHBOARD: 'dashboard',
   MATCH: 'match',
   EVENTOS: 'eventos',

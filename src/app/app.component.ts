@@ -8,7 +8,7 @@ import { BottomNavComponent } from './shared/layout/bottom-nav/bottom-nav.compon
 import { AuthService } from './core/services/auth.service';
 import { AuthActions } from './store/auth/auth.actions';
 
-const AUTH_ROUTES = ['/login', '/register'];
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 
 @Component({
   selector: 'app-root',

@@ -14,6 +14,9 @@ import {
   signOut,
   updateProfile,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
   User,
 } from 'firebase/auth';
 import { AUTH } from '../firebase/firebase.provider';
@@ -48,6 +51,17 @@ export class AuthService {
     ).pipe(map(user => this.toAuthUser(user)));
   }
 
+  loginWithGoogle(): Observable<AuthUser> {
+    const provider = new GoogleAuthProvider();
+    return from(signInWithPopup(this.auth, provider)).pipe(
+      map(cred => this.toAuthUser(cred.user)),
+    );
+  }
+
+  sendPasswordReset(email: string): Observable<void> {
+    return from(sendPasswordResetEmail(this.auth, email));
+  }
+
   logout(): Observable<void> {
     return from(signOut(this.auth));
   }
@@ -56,14 +70,17 @@ export class AuthService {
   mapError(err: unknown): string {
     const code = (err as { code?: string })?.code ?? '';
     const messages: Record<string, string> = {
-      'auth/invalid-credential':     'Email o contraseña incorrectos.',
-      'auth/user-not-found':         'No existe una cuenta con ese email.',
-      'auth/wrong-password':         'Contraseña incorrecta.',
-      'auth/email-already-in-use':   'Ya existe una cuenta con ese email.',
-      'auth/weak-password':          'La contraseña debe tener al menos 6 caracteres.',
-      'auth/invalid-email':          'El formato del email no es válido.',
-      'auth/too-many-requests':      'Demasiados intentos. Intenta más tarde.',
-      'auth/network-request-failed': 'Sin conexión. Verifica tu red.',
+      'auth/invalid-credential':        'Email o contraseña incorrectos.',
+      'auth/user-not-found':            'No existe una cuenta con ese email.',
+      'auth/wrong-password':            'Contraseña incorrecta.',
+      'auth/email-already-in-use':      'Ya existe una cuenta con ese email.',
+      'auth/weak-password':             'La contraseña debe tener al menos 6 caracteres.',
+      'auth/invalid-email':             'El formato del email no es válido.',
+      'auth/too-many-requests':         'Demasiados intentos. Intenta más tarde.',
+      'auth/network-request-failed':    'Sin conexión. Verifica tu red.',
+      'auth/popup-closed-by-user':      'Cerraste la ventana de Google. Intenta de nuevo.',
+      'auth/cancelled-popup-request':   'La solicitud fue cancelada.',
+      'auth/popup-blocked':             'El popup fue bloqueado. Permite popups en tu navegador.',
     };
     return messages[code] ?? 'Ocurrió un error inesperado. Intenta de nuevo.';
   }

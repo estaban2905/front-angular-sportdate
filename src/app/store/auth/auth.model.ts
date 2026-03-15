@@ -11,4 +11,5 @@ export interface AuthStateModel {
   user: AuthUser | null;
   loading: boolean;
   error: string | null;
+  resetPasswordSent: boolean;
 }
