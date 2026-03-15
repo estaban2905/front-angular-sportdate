@@ -1,0 +1,29 @@
+<!-- shared/layout/bottom-nav/bottom-nav.component.html -->
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1A1A2E] border-t border-gray-100 dark:border-[#2D2D4A] pt-2 pb-safe px-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.2)] transition-colors duration-300">
+  <div class="flex justify-around items-end pb-2 relative">
+
+    <!-- Theme toggle -->
+    <button
+      (click)="themeService.toggleTheme()"
+      class="absolute -top-12 right-4 p-2 rounded-full bg-white dark:bg-[#22223A] shadow-md border border-gray-100 dark:border-[#2D2D4A] text-gray-400 dark:text-gray-300 transition-all active:scale-90"
+      aria-label="Toggle theme">
+      @if (themeService.theme() === 'dark') {
+        <i-lucide [img]="sunIcon" class="w-5 h-5"></i-lucide>
+      } @else {
+        <i-lucide [img]="moonIcon" class="w-5 h-5"></i-lucide>
+      }
+    </button>
+
+    @for (tab of tabs; track tab.path) {
+      <a [routerLink]="tab.path" routerLinkActive #rla="routerLinkActive"
+        class="relative flex flex-col items-center justify-center w-14 py-1 transition-colors"
+        [class]="rla.isActive ? 'text-[#FF6B6B]' : 'text-gray-400 dark:text-gray-500'">
+        @if (rla.isActive) {
+          <div class="absolute -top-2 w-8 h-1 bg-gradient-to-r from-[#FF6B6B] to-[#FF8E8E] rounded-full"></div>
+        }
+        <i-lucide [img]="tab.icon" class="w-6 h-6"></i-lucide>
+        <span class="text-[10px] font-bold mt-1">{{ tab.label }}</span>
+      </a>
+    }
+  </div>
+</div>

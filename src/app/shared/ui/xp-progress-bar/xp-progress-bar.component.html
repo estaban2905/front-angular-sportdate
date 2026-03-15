@@ -1,0 +1,22 @@
+<!-- xp-progress-bar.component.html
+     XP progress bar with optional level / XP label row.
+-->
+
+<div class="w-full">
+  @if (showLabel()) {
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors">
+        Nivel {{ level() }}
+      </span>
+      <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 transition-colors">
+        {{ currentXP() }} / {{ maxXP() }} XP
+      </span>
+    </div>
+  }
+  <div [class]="'w-full bg-gray-100 dark:bg-[#2D2D4A] rounded-full overflow-hidden transition-colors ' + heightClass()">
+    <div
+      class="h-full bg-gradient-to-r from-orange-400 to-rose-500 rounded-full transition-all duration-1000 ease-out"
+      [style.width.%]="percentage()">
+    </div>
+  </div>
+</div>

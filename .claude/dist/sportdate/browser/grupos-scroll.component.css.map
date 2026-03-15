@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/ui/grupos-scroll/grupos-scroll.component.scss"],
+  "sourcesContent": ["// shared/ui/grupos-scroll/grupos-scroll.component.scss\n\n.slide-in {\n  animation: slideIn 0.4s ease-out backwards;\n}\n\n@keyframes slideIn {\n  from {\n    opacity: 0;\n    transform: translateX(20px);\n  }\n  to {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\n"],
+  "mappings": ";AAEA,CAAA;AACE,aAAA,QAAA,KAAA,SAAA;;AAGF,WAHE;AAIA;AACE,aAAA;AACA,eAAA,WAAA;;AAEF;AACE,aAAA;AACA,eAAA,WAAA;;;",
+  "names": []
+}

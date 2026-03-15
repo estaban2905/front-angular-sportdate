@@ -1,0 +1,35 @@
+<!-- shared/ui/grupos-scroll/grupos-scroll.component.html -->
+<div class="mt-8 mb-24">
+  <div class="flex items-center justify-between px-1 mb-4">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center transition-colors">
+      <span class="mr-2">🏟️</span> Grupos Abiertos
+    </h3>
+    <button class="text-sm font-semibold text-[#FF6B6B] hover:text-[#FF8E8E] transition-colors">
+      Ver todos
+    </button>
+  </div>
+  <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 no-scrollbar">
+    @for (group of groups(); track group.id; let i = $index) {
+      <div
+        class="min-w-[240px] bg-white dark:bg-[#1A1A2E] rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-[#2D2D4A] snap-center flex-shrink-0 cursor-pointer hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] transition-all duration-300 slide-in"
+        [style.animationDelay]="i * 100 + 'ms'">
+        <div [class]="'h-24 rounded-xl bg-gradient-to-br ' + group.imageGradient + ' mb-3 flex items-center justify-center text-4xl'">
+          {{ group.sportEmoji }}
+        </div>
+        <h4 class="font-bold text-gray-900 dark:text-white mb-1 transition-colors">
+          {{ group.name }}
+        </h4>
+        <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2 transition-colors">
+          <i-lucide [img]="usersIcon" class="w-3 h-3 mr-1"></i-lucide>
+          {{ group.members }} miembros
+        </div>
+        <div class="inline-flex items-center px-2 py-1 rounded-md bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-xs font-bold transition-colors">
+          @if (group.activityLevel.includes('Muy')) {
+            <i-lucide [img]="flameIcon" class="w-3 h-3 mr-1 fill-current"></i-lucide>
+          }
+          {{ group.activityLevel }}
+        </div>
+      </div>
+    }
+  </div>
+</div>

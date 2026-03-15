@@ -1,0 +1,23 @@
+// shared/layout/sidebar/sidebar.component.scss
+
+.nav-item.active-nav {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 700;
+
+  i-lucide {
+    color: #ff6b6b;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 32px;
+    background: #ff6b6b;
+    border-radius: 0 4px 4px 0;
+  }
+}

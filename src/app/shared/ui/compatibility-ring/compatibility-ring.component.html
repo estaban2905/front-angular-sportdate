@@ -1,0 +1,46 @@
+<!-- compatibility-ring.component.html
+     Circular SVG ring showing a compatibility percentage with a gradient arc.
+-->
+
+<div class="relative flex items-center justify-center" [style.width.px]="size()" [style.height.px]="size()">
+  <svg [attr.width]="size()" [attr.height]="size()" class="transform -rotate-90">
+    <!-- Background track -->
+    <circle
+      [attr.cx]="size() / 2"
+      [attr.cy]="size() / 2"
+      [attr.r]="radius()"
+      stroke="currentColor"
+      class="text-gray-200 dark:text-[#2D2D4A] transition-colors"
+      [attr.stroke-width]="strokeWidth()"
+      fill="transparent"
+    />
+    <!-- Foreground arc -->
+    <circle
+      [attr.cx]="size() / 2"
+      [attr.cy]="size() / 2"
+      [attr.r]="radius()"
+      stroke="url(#gradient)"
+      [attr.stroke-width]="strokeWidth()"
+      fill="transparent"
+      [attr.stroke-dasharray]="circumference()"
+      [attr.stroke-dashoffset]="offset()"
+      stroke-linecap="round"
+      class="transition-all duration-1500 ease-out"
+    />
+    <defs>
+      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#FF6B6B" />
+        <stop offset="100%" stop-color="#FF8E8E" />
+      </linearGradient>
+    </defs>
+  </svg>
+  <!-- Centre label -->
+  <div class="absolute flex flex-col items-center justify-center text-center">
+    <span class="text-xl font-bold text-gray-800 dark:text-white leading-none transition-colors">
+      {{ percentage() }}%
+    </span>
+    <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-0.5 transition-colors">
+      Match
+    </span>
+  </div>
+</div>

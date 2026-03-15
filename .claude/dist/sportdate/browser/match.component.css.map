@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/match/match.component.scss"],
+  "sourcesContent": ["/* match.component.scss\n   Component-specific animations for the Match / Discover page.\n*/\n\n.animate-fade-in {\n  animation: fadeIn 0.3s ease-out;\n}\n\n.animate-bounce-in {\n  animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n\n.animate-fade-up {\n  animation: fadeUp 0.3s ease-out;\n}\n\n@keyframes fadeIn {\n  from { opacity: 0; }\n  to   { opacity: 1; }\n}\n\n@keyframes bounceIn {\n  from { transform: scale(0.5) rotate(-10deg) translateY(-80px); }\n  to   { transform: scale(1.2) rotate(0) translateY(-80px); }\n}\n\n@keyframes fadeUp {\n  from { opacity: 0; transform: translateY(10px); }\n  to   { opacity: 1; transform: translateY(0); }\n}\n\n.no-scrollbar::-webkit-scrollbar { display: none; }\n.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }\n"],
+  "mappings": ";AAIA,CAAA;AACE,aAAA,OAAA,KAAA;;AAGF,CAAA;AACE,aAAA,SAAA,KAAA,aAAA,KAAA,EAAA,KAAA,EAAA,IAAA,EAAA;;AAGF,CAAA;AACE,aAAA,OAAA,KAAA;;AAGF,WAXE;AAYA;AAAO,aAAA;;AACP;AAAO,aAAA;;;AAGT,WAZE;AAaA;AAAO,eAAA,MAAA,KAAA,OAAA,QAAA,WAAA;;AACP;AAAO,eAAA,MAAA,KAAA,OAAA,GAAA,WAAA;;;AAGT,WAbE;AAcA;AAAO,aAAA;AAAY,eAAA,WAAA;;AACnB;AAAO,aAAA;AAAY,eAAA,WAAA;;;AAGrB,CAAA,YAAA;AAAmC,WAAA;;AACnC,CADA;AACgB,sBAAA;AAA0B,mBAAA;;",
+  "names": []
+}

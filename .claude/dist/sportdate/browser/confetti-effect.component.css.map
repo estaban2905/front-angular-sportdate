@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/ui/confetti-effect/confetti-effect.component.scss"],
+  "sourcesContent": ["// shared/ui/confetti-effect/confetti-effect.component.scss\n\n.confetti-piece {\n  animation: confetti 1.5s ease-out forwards;\n}\n\n@keyframes confetti {\n  0% {\n    transform: translate(0, 0) rotate(0deg) scale(0);\n    opacity: 1;\n  }\n  100% {\n    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--scale));\n    opacity: 0;\n  }\n}\n"],
+  "mappings": ";AAEA,CAAA;AACE,aAAA,SAAA,KAAA,SAAA;;AAGF,WAHE;AAIA;AACE,eAAA,UAAA,CAAA,EAAA,GAAA,OAAA,MAAA,MAAA;AACA,aAAA;;AAEF;AACE,eAAA,UAAA,IAAA,KAAA,EAAA,IAAA,OAAA,OAAA,IAAA,QAAA,MAAA,IAAA;AACA,aAAA;;;",
+  "names": []
+}

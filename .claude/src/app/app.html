@@ -1,0 +1,7 @@
+<app-sidebar [activeTab]="activeTab()" (tabChange)="activeTab.set($event)" />
+
+<div class="md:ml-64">
+  <app-dashboard-screen />
+</div>
+
+<app-bottom-nav [activeTab]="activeTab()" (tabChange)="activeTab.set($event)" class="md:hidden" />

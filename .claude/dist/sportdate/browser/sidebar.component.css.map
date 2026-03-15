@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/layout/sidebar/sidebar.component.scss"],
+  "sourcesContent": ["// shared/layout/sidebar/sidebar.component.scss\n\n.nav-item.active-nav {\n  background-color: rgba(255, 255, 255, 0.1);\n  color: white;\n  font-weight: 700;\n\n  i-lucide {\n    color: #ff6b6b;\n  }\n\n  &::before {\n    content: '';\n    position: absolute;\n    left: 0;\n    top: 50%;\n    transform: translateY(-50%);\n    width: 3px;\n    height: 32px;\n    background: #ff6b6b;\n    border-radius: 0 4px 4px 0;\n  }\n}\n"],
+  "mappings": ";AAEA,CAAA,QAAA,CAAA;AACE,oBAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACA,SAAA;AACA,eAAA;;AAEA,CALF,QAKE,CALF,WAKE;AACE,SAAA;;AAGF,CATF,QASE,CATF,UASE;AACE,WAAA;AACA,YAAA;AACA,QAAA;AACA,OAAA;AACA,aAAA,WAAA;AACA,SAAA;AACA,UAAA;AACA,cAAA;AACA,iBAAA,EAAA,IAAA,IAAA;;",
+  "names": []
+}

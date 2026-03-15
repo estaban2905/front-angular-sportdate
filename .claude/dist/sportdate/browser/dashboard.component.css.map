@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/dashboard/dashboard.component.scss"],
+  "sourcesContent": ["/* dashboard.component.scss\n   Component-specific styles for the Dashboard page.\n   Tailwind utility classes live in the HTML file.\n*/\n\n.card-in {\n  animation: cardIn 0.35s ease-out both;\n}\n\n@keyframes cardIn {\n  from {\n    opacity: 0;\n    transform: translateY(12px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.no-scrollbar::-webkit-scrollbar {\n  display: none;\n}\n\n.no-scrollbar {\n  -ms-overflow-style: none;\n  scrollbar-width: none;\n}\n"],
+  "mappings": ";AAKA,CAAA;AACE,aAAA,OAAA,MAAA,SAAA;;AAGF,WAHE;AAIA;AACE,aAAA;AACA,eAAA,WAAA;;AAEF;AACE,aAAA;AACA,eAAA,WAAA;;;AAIJ,CAAA,YAAA;AACE,WAAA;;AAGF,CAJA;AAKE,sBAAA;AACA,mBAAA;;",
+  "names": []
+}

@@ -1,0 +1,197 @@
+<!-- ranking.component.html
+     Ranking / Leaderboard page template.
+     Tabs: Individual (table), Equipos (team cards), Campeonatos (tournament cards).
+-->
+
+<div class="p-6 pb-24 md:p-8 max-w-5xl mx-auto">
+
+  <!-- =====================================================================
+       Header
+       ===================================================================== -->
+  <header class="mb-8 text-center md:text-left">
+    <h1 class="text-3xl font-black text-gray-900 dark:text-white mb-2 transition-colors">🏆 Ranking Semanal</h1>
+    <p class="text-gray-500 dark:text-gray-400 transition-colors">Compite con otros deportistas y sube de nivel.</p>
+  </header>
+
+  <!-- =====================================================================
+       Main Tabs
+       ===================================================================== -->
+  <div class="flex justify-center md:justify-start mb-6">
+    <div class="bg-gray-100 dark:bg-[#22223A] p-1 rounded-xl inline-flex">
+      @for (tab of tabs; track tab) {
+        <button (click)="activeTab = tab"
+          [class]="'px-6 py-2 rounded-lg text-sm font-bold transition-all ' +
+            (activeTab === tab ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')">
+          {{ tab }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       Individual Tab
+       ===================================================================== -->
+  @if (activeTab === 'Individual') {
+
+    <!-- Filters -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-4 mb-6 justify-center md:justify-start">
+      @for (filter of filters; track filter) {
+        <button (click)="activeFilter = filter"
+          [class]="'px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ' +
+            (activeFilter === filter ? 'bg-gray-900 dark:bg-[#F0F0F5] text-white dark:text-gray-900 shadow-lg shadow-gray-200 dark:shadow-none scale-105' : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
+          {{ filter }}
+        </button>
+      }
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="bg-white dark:bg-[#1A1A2E] rounded-3xl shadow-sm border border-gray-100 dark:border-[#2D2D4A] overflow-hidden transition-all duration-300">
+      <!-- Table Header -->
+      <div class="grid grid-cols-12 gap-4 p-4 bg-gray-50/50 dark:bg-[#22223A] text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-[#2D2D4A] transition-colors">
+        <div class="col-span-2 md:col-span-1 text-center">#</div>
+        <div class="col-span-6 md:col-span-5">Deportista</div>
+        <div class="col-span-2 md:col-span-3 text-center">Nivel</div>
+        <div class="col-span-2 md:col-span-3 text-right pr-4">XP</div>
+      </div>
+
+      <!-- Table Rows -->
+      <div class="divide-y divide-gray-50 dark:divide-[#2D2D4A]">
+        @for (entry of leaderboard(); track entry.id; let i = $index) {
+          <div [class]="'grid grid-cols-12 gap-4 p-4 items-center hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors animate-slide-in ' +
+            (entry.id === 'me' ? 'bg-orange-50/50 dark:bg-orange-900/10 hover:bg-orange-50 dark:hover:bg-orange-900/20' : '')"
+            [style.animationDelay]="i * 50 + 'ms'">
+
+            <!-- Rank -->
+            <div class="col-span-2 md:col-span-1 flex justify-center">
+              @if (entry.rank <= 3) {
+                <div [class]="'w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-sm ' +
+                  (entry.rank === 1 ? 'bg-yellow-400' : entry.rank === 2 ? 'bg-gray-300' : 'bg-orange-300')">
+                  {{ entry.rank }}
+                </div>
+              } @else {
+                <span class="font-bold text-gray-500 dark:text-gray-400 text-lg transition-colors">{{ entry.rank }}</span>
+              }
+            </div>
+
+            <!-- User Info -->
+            <div class="col-span-6 md:col-span-5 flex items-center space-x-3">
+              <div class="relative">
+                <img [src]="entry.avatar" [alt]="entry.name" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#2D2D4A]" />
+                @if (entry.id === 'me') {
+                  <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A2E]"></div>
+                }
+              </div>
+              <div>
+                <h3 [class]="'font-bold transition-colors ' + (entry.id === 'me' ? 'text-[#FF6B6B]' : 'text-gray-900 dark:text-white')">
+                  {{ entry.name }} {{ entry.id === 'me' ? '(Tú)' : '' }}
+                </h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium transition-colors">{{ entry.sport }}</span>
+              </div>
+            </div>
+
+            <!-- Level & Trend -->
+            <div class="col-span-2 md:col-span-3 flex flex-col md:flex-row items-center justify-center md:space-x-2">
+              <span class="font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-[#22223A] px-2 py-0.5 rounded text-xs transition-colors">Lvl {{ entry.level }}</span>
+              <div class="hidden md:flex items-center text-xs font-semibold mt-1 md:mt-0">
+                @if (entry.trend === 'up') {
+                  <span class="text-green-500 flex items-center">
+                    <i-lucide [img]="trendingUpIcon" class="w-3 h-3 mr-1"></i-lucide> Subiendo
+                  </span>
+                }
+                @if (entry.trend === 'down') {
+                  <span class="text-red-500 flex items-center">
+                    <i-lucide [img]="trendingDownIcon" class="w-3 h-3 mr-1"></i-lucide> Bajando
+                  </span>
+                }
+                @if (entry.trend === 'same') {
+                  <span class="text-gray-400 dark:text-gray-500 flex items-center">
+                    <i-lucide [img]="minusIcon" class="w-3 h-3 mr-1"></i-lucide> Igual
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- XP -->
+            <div class="col-span-2 md:col-span-3 text-right pr-4 font-mono font-bold text-gray-900 dark:text-white transition-colors">
+              {{ entry.xp.toLocaleString() }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- =====================================================================
+       Equipos Tab
+       ===================================================================== -->
+  @if (activeTab === 'Equipos') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      @for (team of teams(); track team.id) {
+        <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-[#2D2D4A] flex items-center gap-4 hover:shadow-md transition-all">
+          <div [class]="'w-16 h-16 rounded-2xl bg-gradient-to-br ' + team.avatar + ' flex items-center justify-center text-2xl shadow-inner'">
+            <i-lucide [img]="shieldIcon" class="w-8 h-8 text-white"></i-lucide>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ team.name }}</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ team.sport }}</p>
+              </div>
+              <span class="text-2xl font-black text-gray-900 dark:text-white">{{ team.points }} <span class="text-xs font-bold text-gray-400">pts</span></span>
+            </div>
+            <div class="flex items-center gap-4 mt-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+              <span class="text-green-500">{{ team.wins }}W</span>
+              <span class="text-red-500">{{ team.losses }}L</span>
+              <span class="text-gray-400">{{ team.draws }}D</span>
+              <span class="ml-auto flex items-center">
+                <i-lucide [img]="usersIcon" class="w-3 h-3 mr-1"></i-lucide> {{ team.members }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- =====================================================================
+       Campeonatos Tab
+       ===================================================================== -->
+  @if (activeTab === 'Campeonatos') {
+    <div class="space-y-4">
+      @for (champ of championships(); track champ.id) {
+        <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-[#2D2D4A] relative overflow-hidden group">
+          <div [class]="'absolute left-0 top-0 bottom-0 w-2 ' + champ.color"></div>
+          <div class="flex flex-col md:flex-row md:items-center gap-6">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-gray-50 dark:bg-[#22223A] rounded-2xl flex items-center justify-center text-3xl">{{ champ.sport }}</div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white ' +
+                    (champ.status === 'En curso' ? 'bg-green-500' : champ.status === 'Inscripciones' ? 'bg-blue-500' : 'bg-gray-500')">
+                    {{ champ.status }}
+                  </span>
+                  <span class="text-xs text-gray-400 font-bold">{{ champ.startDate }}</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-[#FF6B6B] transition-colors">{{ champ.name }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                  <i-lucide [img]="awardIcon" class="w-4 h-4 mr-1 text-yellow-500"></i-lucide> Premio: {{ champ.prize }}
+                </p>
+              </div>
+            </div>
+            <div class="flex-1 flex justify-between items-center md:justify-end md:gap-8 border-t md:border-t-0 border-gray-100 dark:border-[#2D2D4A] pt-4 md:pt-0">
+              <div class="text-center">
+                <div class="text-xs text-gray-400 font-bold uppercase">Ronda</div>
+                <div class="font-bold text-gray-900 dark:text-white">{{ champ.round }}</div>
+              </div>
+              <div class="text-center">
+                <div class="text-xs text-gray-400 font-bold uppercase">Equipos</div>
+                <div class="font-bold text-gray-900 dark:text-white">{{ champ.teams }}</div>
+              </div>
+              <button class="px-4 py-2 bg-gray-900 dark:bg-[#22223A] text-white rounded-lg font-bold text-sm hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] transition-colors">Ver Detalles</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

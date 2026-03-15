@@ -1,0 +1,28 @@
+/* dashboard.component.scss
+   Component-specific styles for the Dashboard page.
+   Tailwind utility classes live in the HTML file.
+*/
+
+.card-in {
+  animation: cardIn 0.35s ease-out both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

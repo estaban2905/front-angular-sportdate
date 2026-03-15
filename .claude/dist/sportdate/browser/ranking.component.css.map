@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/ranking/ranking.component.scss"],
+  "sourcesContent": ["/* ranking.component.scss\n   Component-specific animations for the Ranking page.\n*/\n\n.animate-slide-in {\n  animation: slideIn 0.3s ease-out both;\n}\n\n@keyframes slideIn {\n  from { opacity: 0; transform: translateX(-12px); }\n  to   { opacity: 1; transform: translateX(0); }\n}\n\n.no-scrollbar::-webkit-scrollbar { display: none; }\n.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }\n"],
+  "mappings": ";AAIA,CAAA;AACE,aAAA,QAAA,KAAA,SAAA;;AAGF,WAHE;AAIA;AAAO,aAAA;AAAY,eAAA,WAAA;;AACnB;AAAO,aAAA;AAAY,eAAA,WAAA;;;AAGrB,CAAA,YAAA;AAAmC,WAAA;;AACnC,CADA;AACgB,sBAAA;AAA0B,mBAAA;;",
+  "names": []
+}

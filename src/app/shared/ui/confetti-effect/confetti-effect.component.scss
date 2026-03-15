@@ -1,0 +1,16 @@
+// shared/ui/confetti-effect/confetti-effect.component.scss
+
+.confetti-piece {
+  animation: confetti 1.5s ease-out forwards;
+}
+
+@keyframes confetti {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--scale));
+    opacity: 0;
+  }
+}

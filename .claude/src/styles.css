@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #FF6B6B;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #F8FAFC;
+  color: #1E293B;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Angular host elements — layout transparent */
+app-root { display: block; min-height: 100vh; }
+
+app-sidebar,
+app-bottom-nav,
+app-dashboard-screen,
+app-match-screen,
+app-eventos-screen,
+app-leaderboard-screen,
+app-profile-screen,
+app-chat-screen,
+app-comunidades-screen,
+app-xp-progress-bar,
+app-profile-card,
+app-compatibility-ring,
+app-achievement-badge,
+app-confetti-effect,
+app-challenge-card,
+app-grupos-scroll,
+app-placeholder-screen {
+  display: contents;
+}
+
+i-lucide,
+lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Global entrance animation — uses `both` so it never leaves content permanently hidden */
+.card-in {
+  animation: cardIn 0.35s ease-out both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Screen transition */
+.screen-enter {
+  animation: screenEnter 0.2s ease-out;
+}
+
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}

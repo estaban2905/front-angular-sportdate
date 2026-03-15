@@ -1,0 +1,35 @@
+<!-- achievement-badge.component.html
+     Badge circle with icon/lock, optional name label, and hover tooltip.
+-->
+
+<div class="group relative flex flex-col items-center">
+  <!-- Badge circle -->
+  <div [class]="ringClasses()">
+    @if (isLocked()) {
+      <i-lucide [img]="lockIcon" class="w-1/3 h-1/3 text-gray-400 dark:text-gray-600"></i-lucide>
+    } @else {
+      <span>{{ achievement().icon }}</span>
+    }
+  </div>
+
+  <!-- Name label (hidden in sm size) -->
+  @if (size() !== 'sm') {
+    <span [class]="'mt-2 text-xs font-bold text-center leading-tight max-w-[80px] transition-colors ' + (isLocked() ? 'text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300')">
+      {{ achievement().name }}
+    </span>
+  }
+
+  <!-- Hover Tooltip -->
+  <div class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 w-40">
+    <div class="bg-gray-900 dark:bg-black text-white text-xs rounded-lg p-2 shadow-xl text-center border border-transparent dark:border-[#2D2D4A]">
+      <p class="font-bold mb-1">{{ achievement().name }}</p>
+      <p class="text-gray-300">{{ achievement().description }}</p>
+      @if (achievement().unlockedAt) {
+        <p class="text-gray-500 mt-1 text-[10px]">
+          Desbloqueado: {{ achievement().unlockedAt }}
+        </p>
+      }
+    </div>
+    <div class="w-2 h-2 bg-gray-900 dark:bg-black rotate-45 mx-auto -mt-1 border-r border-b border-transparent dark:border-[#2D2D4A]"></div>
+  </div>
+</div>
