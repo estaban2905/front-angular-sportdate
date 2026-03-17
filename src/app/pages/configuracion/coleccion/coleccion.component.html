@@ -1,0 +1,222 @@
+<!-- coleccion.component.html — tabla CRUD para una colección Firestore -->
+
+<div>
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+    <div class="flex items-center gap-3">
+      <a [routerLink]="['/configuracion']"
+        class="p-2 rounded-xl border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors">
+        <i-lucide [img]="arrowLeftIcon" class="w-4 h-4 text-gray-500"></i-lucide>
+      </a>
+      <div>
+        <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+          <span>{{ collectionMeta?.emoji ?? '📁' }}</span>
+          <span>{{ collectionMeta?.label ?? collectionName }}</span>
+          <code class="text-sm font-mono text-gray-400 font-normal">/ {{ collectionName }}</code>
+        </h2>
+        <p class="text-xs text-gray-400">{{ docs.length }} documento{{ docs.length !== 1 ? 's' : '' }}</p>
+      </div>
+    </div>
+
+    <!-- Bulk action buttons -->
+    <div class="flex items-center gap-2 flex-wrap">
+
+      @if (confirmBulk) {
+        <span class="text-xs text-amber-600 dark:text-amber-400 font-semibold">
+          ¿Confirmar?
+        </span>
+        <button (click)="cancelBulk()" class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#2D2D4A] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors">
+          Cancelar
+        </button>
+      }
+
+      @if (collectionMeta?.restorable) {
+        <button (click)="restoreCollection()" [disabled]="bulkLoading !== null"
+          [class]="'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ' +
+            (confirmBulk === 'restore'
+              ? 'bg-amber-500 text-white border-amber-500'
+              : 'border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20')">
+          @if (bulkLoading === 'restore') {
+            <i-lucide [img]="loaderIcon" class="w-3.5 h-3.5 animate-spin"></i-lucide>
+          } @else {
+            <i-lucide [img]="refreshIcon" class="w-3.5 h-3.5"></i-lucide>
+          }
+          {{ confirmBulk === 'restore' ? 'Confirmar restaurar' : 'Restaurar desde mock' }}
+        </button>
+      }
+
+      <button (click)="clearCollection()" [disabled]="bulkLoading !== null"
+        [class]="'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ' +
+          (confirmBulk === 'clear'
+            ? 'bg-red-500 text-white border-red-500'
+            : 'border-red-200 dark:border-red-900/60 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20')">
+        @if (bulkLoading === 'clear') {
+          <i-lucide [img]="loaderIcon" class="w-3.5 h-3.5 animate-spin"></i-lucide>
+        } @else {
+          <i-lucide [img]="trashIcon" class="w-3.5 h-3.5"></i-lucide>
+        }
+        {{ confirmBulk === 'clear' ? 'Confirmar vaciar' : 'Vaciar colección' }}
+      </button>
+
+      <button (click)="openAdd()"
+        class="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg bg-gray-900 dark:bg-[#22223A] text-white hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] transition-colors border border-transparent dark:border-[#2D2D4A]">
+        <i-lucide [img]="plusIcon" class="w-3.5 h-3.5"></i-lucide>
+        Agregar
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── Table ───────────────────────────────────────────────────────────── -->
+  <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl border border-gray-100 dark:border-[#2D2D4A] overflow-hidden">
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-16 gap-3 text-gray-400">
+        <i-lucide [img]="loaderIcon" class="w-5 h-5 animate-spin"></i-lucide>
+        <span class="text-sm">Cargando datos…</span>
+      </div>
+    } @else if (docs.length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 gap-2 text-gray-400">
+        <span class="text-3xl">📭</span>
+        <p class="text-sm font-semibold">Colección vacía</p>
+        <p class="text-xs">Agrega un documento o restaura desde mock.</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+
+          <!-- Head -->
+          <thead>
+            <tr class="border-b border-gray-100 dark:border-[#2D2D4A]">
+              @for (col of columns; track col) {
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  {{ colLabel(col) }}
+                </th>
+              }
+              <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <!-- Body -->
+          <tbody class="divide-y divide-gray-50 dark:divide-[#22223A]">
+            @for (doc of docs; track doc._id) {
+              <!-- Data row -->
+              <tr class="hover:bg-gray-50 dark:hover:bg-[#22223A]/50 transition-colors"
+                  [class.bg-red-50]="deletingId === doc._id"
+                  [class.dark:bg-red-900]="deletingId === doc._id">
+                @for (col of columns; track col) {
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300 font-mono text-xs whitespace-nowrap max-w-[200px] truncate"
+                      [title]="cellValue(doc, col)">
+                    {{ cellValue(doc, col) }}
+                  </td>
+                }
+                <td class="px-4 py-3 text-right whitespace-nowrap">
+                  @if (deletingId === doc._id) {
+                    <!-- Inline delete confirmation -->
+                    <div class="flex items-center justify-end gap-2">
+                      <span class="text-xs text-red-600 dark:text-red-400 font-semibold">¿Eliminar?</span>
+                      <button (click)="confirmDelete(doc._id)"
+                        class="px-3 py-1 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Sí
+                      </button>
+                      <button (click)="requestDelete(doc._id)"
+                        class="px-3 py-1 text-xs font-bold border border-gray-200 dark:border-[#2D2D4A] text-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors">
+                        No
+                      </button>
+                    </div>
+                  } @else {
+                    <!-- Normal actions -->
+                    <div class="flex items-center justify-end gap-1">
+                      <button (click)="openEdit(doc)"
+                        title="Editar"
+                        class="p-1.5 rounded-lg text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        <i-lucide [img]="pencilIcon" class="w-4 h-4"></i-lucide>
+                      </button>
+                      <button (click)="requestDelete(doc._id)"
+                        title="Eliminar"
+                        class="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                        <i-lucide [img]="trashIcon" class="w-4 h-4"></i-lucide>
+                      </button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+
+        </table>
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- ── JSON Editor Modal ────────────────────────────────────────────────── -->
+@if (modalOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div (click)="closeModal()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div class="relative z-10 bg-white dark:bg-[#1A1A2E] rounded-2xl shadow-2xl border border-gray-100 dark:border-[#2D2D4A] w-full max-w-lg flex flex-col max-h-[85vh]">
+
+      <!-- Modal header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#2D2D4A]">
+        <h3 class="font-black text-gray-900 dark:text-white">
+          {{ editingDoc ? 'Editar documento' : 'Agregar documento' }}
+        </h3>
+        <button (click)="closeModal()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#22223A] transition-colors">
+          <i-lucide [img]="xIcon" class="w-4 h-4 text-gray-500"></i-lucide>
+        </button>
+      </div>
+
+      <!-- Doc ID (edit mode) -->
+      @if (editingDoc) {
+        <div class="px-5 pt-3 pb-1">
+          <p class="text-xs text-gray-400">
+            ID: <code class="font-mono text-[#FF6B6B]">{{ editingDoc._id }}</code>
+          </p>
+        </div>
+      }
+
+      <!-- JSON textarea -->
+      <div class="flex-1 overflow-hidden px-5 py-3">
+        <textarea
+          [(ngModel)]="jsonText"
+          name="jsonText"
+          rows="14"
+          spellcheck="false"
+          class="w-full h-full font-mono text-xs bg-gray-950 dark:bg-black/40 text-green-400 dark:text-green-300 border border-gray-200 dark:border-[#2D2D4A] rounded-xl p-4 resize-none focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]"
+          placeholder='{ "campo": "valor" }'></textarea>
+      </div>
+
+      <!-- Error -->
+      @if (jsonError) {
+        <div class="px-5 pb-2 flex items-center gap-2 text-xs text-red-500">
+          <i-lucide [img]="warnIcon" class="w-3.5 h-3.5 flex-shrink-0"></i-lucide>
+          {{ jsonError }}
+        </div>
+      }
+
+      <!-- Modal footer -->
+      <div class="px-5 py-4 border-t border-gray-100 dark:border-[#2D2D4A] flex justify-end gap-2">
+        <button (click)="closeModal()" [disabled]="savingModal"
+          class="px-4 py-2 text-sm font-bold border border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors disabled:opacity-50">
+          Cancelar
+        </button>
+        <button (click)="saveModal()" [disabled]="savingModal"
+          class="flex items-center gap-2 px-5 py-2 text-sm font-bold bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (savingModal) {
+            <i-lucide [img]="loaderIcon" class="w-4 h-4 animate-spin"></i-lucide>
+            Guardando…
+          } @else {
+            <i-lucide [img]="saveIcon" class="w-4 h-4"></i-lucide>
+            Guardar
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

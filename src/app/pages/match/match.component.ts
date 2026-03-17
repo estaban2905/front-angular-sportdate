@@ -9,7 +9,7 @@
  * and groups from CommunityStore.
  */
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { LucideAngularModule, Info, Shield, MapPin, Clock, Activity, Star, Search } from 'lucide-angular';
 import { Store } from '@ngxs/store';
 import { UserSelectors, UserActions } from '@store/user';
@@ -17,6 +17,8 @@ import { CommunitiesSelectors, CommunitiesActions } from '@store/communities';
 import { ProfileCardComponent } from '../../shared/ui/profile-card/profile-card.component';
 import { GruposScrollComponent } from '../../shared/ui/grupos-scroll/grupos-scroll.component';
 import { ConfettiEffectComponent } from '../../shared/ui/confetti-effect/confetti-effect.component';
+import { MATCH_SPORT_FILTERS } from '@core/constants/sports.constants';
+import { FilterProfilesUseCase } from '@core/use-cases/match/filter-profiles.use-case';
 
 @Component({
   selector: 'app-match',
@@ -37,21 +39,27 @@ export class MatchComponent implements OnInit {
   readonly searchIcon = Search;
 
   // ---------------------------------------------------------------------------
-  // Store
+  // Store & Use Cases
   // ---------------------------------------------------------------------------
   private readonly store = inject(Store);
+  private readonly filterProfilesUseCase = inject(FilterProfilesUseCase);
 
-  readonly profiles = this.store.selectSignal(UserSelectors.profiles);
-  readonly groups   = this.store.selectSignal(CommunitiesSelectors.groups);
+  private readonly allProfiles = this.store.selectSignal(UserSelectors.profiles);
+  readonly groups = this.store.selectSignal(CommunitiesSelectors.groups);
 
   // ---------------------------------------------------------------------------
   // Local UI state
   // ---------------------------------------------------------------------------
-  readonly filters = ['Todos', '⚽ Fútbol', '🏃 Running', '🎾 Padel', '🧘 Yoga', '🏔️ Trekking'];
+  readonly filters = MATCH_SPORT_FILTERS;
   currentIndex = 0;
   showConfetti = false;
   showMatchOverlay = false;
-  activeFilter = 'Todos';
+  activeFilter: string = MATCH_SPORT_FILTERS[0];
+
+  /** Profiles filtered by the active sport via FilterProfilesUseCase. */
+  readonly profiles = computed(() =>
+    this.filterProfilesUseCase.execute(this.allProfiles(), this.activeFilter),
+  );
 
   /** The profile card currently on top of the stack. */
   get currentProfile() {
@@ -61,6 +69,11 @@ export class MatchComponent implements OnInit {
 
   handleNext(): void {
     this.currentIndex++;
+  }
+
+  setFilter(filter: string): void {
+    this.activeFilter = filter;
+    this.currentIndex = 0;
   }
 
   handleAccept(): void {

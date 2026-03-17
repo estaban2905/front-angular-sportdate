@@ -11,7 +11,7 @@
 import { Component, Input, signal, inject, HostListener } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { AuthActions } from '@store/auth/auth.actions';
 import { AuthSelectors } from '@store/auth/auth.selectors';
 import { LucideAngularModule, Cog, Sun, Moon, LogOut } from 'lucide-angular';

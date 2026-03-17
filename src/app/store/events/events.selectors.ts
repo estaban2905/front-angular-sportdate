@@ -18,4 +18,14 @@ export class EventsSelectors {
   static loading(state: EventsStateModel) {
     return state.loading;
   }
+
+  @Selector([EventsState])
+  static selectedEvent(state: EventsStateModel) {
+    return state.selectedEvent;
+  }
+
+  @Selector([EventsState])
+  static attendances(state: EventsStateModel) {
+    return state.attendances;
+  }
 }

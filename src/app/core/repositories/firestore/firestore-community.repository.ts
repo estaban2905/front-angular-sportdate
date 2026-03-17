@@ -18,10 +18,11 @@ import { Group, Community } from '../../models';
 @Injectable()
 export class FirestoreCommunityRepository extends CommunityRepository {
   private readonly db = inject(FIRESTORE);
+  private readonly dbRoot = inject(DB_ROOT);
 
   getGroups(): Observable<Group[]> {
     return new Observable<Group[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/groups`);
+      const ref = collection(this.db, `${this.dbRoot}/groups`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -36,7 +37,7 @@ export class FirestoreCommunityRepository extends CommunityRepository {
 
   getCommunities(): Observable<Community[]> {
     return new Observable<Community[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/communities`);
+      const ref = collection(this.db, `${this.dbRoot}/communities`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {

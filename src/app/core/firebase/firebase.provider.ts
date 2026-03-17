@@ -22,14 +22,21 @@ export const FIRESTORE = new InjectionToken<Firestore>('Firestore');
 export const AUTH = new InjectionToken<Auth>('Auth');
 
 /**
- * Root path for all app data in Firestore.
- * Structure: SPORTDATE (collection) → main (document) → <subcollections>
+ * InjectionToken for the Firestore root path.
  *
- * Usage in repositories:
- *   collection(db, `${DB_ROOT}/profiles`)
- *   doc(db, `${DB_ROOT}/user_stats/me`)
+ * All repositories build their collection paths relative to this root:
+ *   collection(db, `${dbRoot}/profiles`)
+ *   doc(db, `${dbRoot}/user_stats/me`)
+ *
+ * Structure: SPORTDATE (collection) → main (document) → <subcollections>
+ * Override this token in app.config.ts to point to a different environment root.
+ *
+ * Example:
+ *   { provide: DB_ROOT, useValue: 'sportdate/main' }
  */
-export const DB_ROOT = '';
+export const DB_ROOT = new InjectionToken<string>('DB_ROOT', {
+  factory: () => '',
+});
 
 export function provideFirebase(): EnvironmentProviders {
   const app = initializeApp(firebaseConfig);

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { State, Action, StateContext } from '@ngxs/store';
 import { tap, catchError, EMPTY } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
+import { GeoService } from '@core/services/geo.service';
 import { AuthStateModel } from './auth.model';
 import { AuthActions } from './auth.actions';
 
@@ -22,11 +23,13 @@ const DEFAULTS: AuthStateModel = {
 @Injectable()
 export class AuthState {
   private readonly authService = inject(AuthService);
+  private readonly geoService = inject(GeoService);
   private readonly router = inject(Router);
 
   @Action(AuthActions.SetUser)
   setUser(ctx: StateContext<AuthStateModel>, { user }: AuthActions.SetUser) {
     ctx.patchState({ user, error: null });
+    if (user) this.geoService.captureUserPosition();
   }
 
   @Action(AuthActions.Login)
@@ -46,6 +49,7 @@ export class AuthState {
   @Action(AuthActions.LoginSuccess)
   loginSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.LoginSuccess) {
     ctx.patchState({ user, loading: false, error: null });
+    this.geoService.captureUserPosition();
     this.router.navigate(['/dashboard']);
   }
 
@@ -74,6 +78,7 @@ export class AuthState {
   @Action(AuthActions.RegisterSuccess)
   registerSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.RegisterSuccess) {
     ctx.patchState({ user, loading: false, error: null });
+    this.geoService.captureUserPosition();
     this.router.navigate(['/dashboard']);
   }
 
@@ -126,6 +131,7 @@ export class AuthState {
   @Action(AuthActions.LogoutSuccess)
   logoutSuccess(ctx: StateContext<AuthStateModel>) {
     ctx.patchState({ user: null, error: null });
+    this.geoService.clearCachedPosition();
     this.router.navigate(['/login']);
   }
 }

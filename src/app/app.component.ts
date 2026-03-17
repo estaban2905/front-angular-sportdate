@@ -7,6 +7,7 @@ import { SidebarComponent } from './shared/layout/sidebar/sidebar.component';
 import { BottomNavComponent } from './shared/layout/bottom-nav/bottom-nav.component';
 import { AuthService } from './core/services/auth.service';
 import { AuthActions } from './store/auth/auth.actions';
+import { FirestoreSeedService } from './core/services/firestore-seed.service';
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 

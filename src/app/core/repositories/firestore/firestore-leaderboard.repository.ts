@@ -19,10 +19,11 @@ import { LeaderboardEntry, TeamEntry, Championship } from '../../models';
 @Injectable()
 export class FirestoreLeaderboardRepository extends LeaderboardRepository {
   private readonly db = inject(FIRESTORE);
+  private readonly dbRoot = inject(DB_ROOT);
 
   getLeaderboard(): Observable<LeaderboardEntry[]> {
     return new Observable<LeaderboardEntry[]>(observer => {
-      const ref = query(collection(this.db, `${DB_ROOT}/leaderboard`), orderBy('rank', 'asc'));
+      const ref = query(collection(this.db, `${this.dbRoot}/leaderboard`), orderBy('rank', 'asc'));
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -37,7 +38,7 @@ export class FirestoreLeaderboardRepository extends LeaderboardRepository {
 
   getTeams(): Observable<TeamEntry[]> {
     return new Observable<TeamEntry[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/teams`);
+      const ref = collection(this.db, `${this.dbRoot}/teams`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -52,7 +53,7 @@ export class FirestoreLeaderboardRepository extends LeaderboardRepository {
 
   getChampionships(): Observable<Championship[]> {
     return new Observable<Championship[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/championships`);
+      const ref = collection(this.db, `${this.dbRoot}/championships`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {

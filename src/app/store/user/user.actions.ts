@@ -41,4 +41,13 @@ export namespace UserActions {
     static readonly type = '[User] Set Active Profile Index';
     constructor(public index: number) {}
   }
+
+  /**
+   * Loads user stats and achievements concurrently via LoadUserDataUseCase.
+   * Prefer this over dispatching LoadUserStats + LoadAchievements separately
+   * when both are needed at the same time (e.g., Dashboard, Perfil).
+   */
+  export class LoadUserData {
+    static readonly type = '[User] Load User Data';
+  }
 }
