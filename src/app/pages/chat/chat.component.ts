@@ -2,22 +2,26 @@
  * pages/chat/chat.component.ts
  *
  * Chat / Mensajes page.
- * Shows a chat list sidebar and a sample conversation (desktop).
- * No store dependency — chat data is static mock for now.
+ * Shows a conversation list sidebar and an active conversation window (desktop).
  *
- * Uses inject() pattern (no constructor injection).
+ * Reads data from ChatState via NGXS signals.
+ * Dispatches ChatActions for all user interactions.
  */
 
-import { Component } from '@angular/core';
-import { LucideAngularModule, Search, MoreVertical, Phone, Video } from 'lucide-angular';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Search, MoreVertical, Phone, Video, Send } from 'lucide-angular';
+import { Store } from '@ngxs/store';
+import { ChatSelectors } from '@store/chat/chat.selectors';
+import { ChatActions } from '@store/chat/chat.actions';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, FormsModule],
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit {
   // ---------------------------------------------------------------------------
   // Icon references
   // ---------------------------------------------------------------------------
@@ -25,15 +29,47 @@ export class ChatComponent {
   readonly moreVerticalIcon = MoreVertical;
   readonly phoneIcon = Phone;
   readonly videoIcon = Video;
+  readonly sendIcon = Send;
 
   // ---------------------------------------------------------------------------
-  // Mock chat data
+  // Store
   // ---------------------------------------------------------------------------
-  chats = [
-    { id: 1, name: 'Camila', message: '¡Nos vemos en el parque a las 10!', time: '10:30 AM', unread: 2, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Camila', online: true },
-    { id: 2, name: 'Grupo Running', message: 'Diego: ¿Quién lleva agua?', time: '9:15 AM', unread: 0, avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=Running', online: false },
-    { id: 3, name: 'Javier', message: 'Buen partido el de ayer 🤙', time: 'Ayer', unread: 0, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Javier', online: true },
-    { id: 4, name: 'Ana P.', message: '¿Te sumas al padel el jueves?', time: 'Ayer', unread: 0, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ana', online: false },
-    { id: 5, name: 'Carlos D.', message: 'Te envié la solicitud del evento', time: 'Lun', unread: 0, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos', online: false },
-  ];
+  private readonly store = inject(Store);
+
+  readonly conversations     = this.store.selectSignal(ChatSelectors.filteredConversations);
+  readonly activeConversation = this.store.selectSignal(ChatSelectors.activeConversation);
+  readonly activeMessages    = this.store.selectSignal(ChatSelectors.activeMessages);
+  readonly loading           = this.store.selectSignal(ChatSelectors.loading);
+
+  // ---------------------------------------------------------------------------
+  // Local UI state
+  // ---------------------------------------------------------------------------
+  messageText = '';
+  searchQuery = '';
+
+  ngOnInit(): void {
+    this.store.dispatch(new ChatActions.LoadConversations());
+  }
+
+  selectConversation(id: number): void {
+    this.store.dispatch(new ChatActions.SelectConversation(id));
+  }
+
+  onSearch(query: string): void {
+    this.searchQuery = query;
+    this.store.dispatch(new ChatActions.SetSearchQuery(query));
+  }
+
+  sendMessage(): void {
+    const conversation = this.activeConversation();
+    if (!conversation || !this.messageText.trim()) return;
+
+    this.store.dispatch(new ChatActions.SendMessage(conversation.id, this.messageText));
+    this.messageText = '';
+  }
+
+  onEnter(event: Event): void {
+    event.preventDefault();
+    this.sendMessage();
+  }
 }

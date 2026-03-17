@@ -41,6 +41,19 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/eventos/eventos.component').then(m => m.EventosComponent),
   },
+  // ⚠ 'eventos/mis' must come BEFORE 'eventos/:id' so "mis" is not treated as an id
+  {
+    path: APP_ROUTES.MIS_EVENTOS,
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/mis-eventos/mis-eventos.component').then(m => m.MisEventosComponent),
+  },
+  {
+    path: `${APP_ROUTES.EVENTOS}/:id`,
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/evento-detalle/evento-detalle.component').then(m => m.EventoDetalleComponent),
+  },
   {
     path: APP_ROUTES.GRUPOS,
     canActivate: [authGuard],
@@ -64,5 +77,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/perfil/perfil.component').then(m => m.PerfilComponent),
+  },
+  {
+    path: APP_ROUTES.CONFIGURACION,
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./pages/configuracion/configuracion.routes').then(m => m.configuracionRoutes),
   },
 ];

@@ -4,6 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { State, Action, StateContext } from '@ngxs/store';
 import { tap } from 'rxjs/operators';
 import { ChatRepository } from '@core/repositories/abstractions/chat.repository';
+import { SendMessageUseCase } from '@core/use-cases/chat/send-message.use-case';
 import { ChatStateModel, ChatMessage } from './chat.model';
 import { CHAT_STATE_DEFAULTS } from './chat.constants';
 import { ChatActions } from './chat.actions';
@@ -15,6 +16,7 @@ import { ChatActions } from './chat.actions';
 @Injectable()
 export class ChatState {
   private readonly repo = inject(ChatRepository);
+  private readonly sendMessageUseCase = inject(SendMessageUseCase);
 
   @Action(ChatActions.LoadConversations)
   loadConversations(ctx: StateContext<ChatStateModel>) {
@@ -57,7 +59,7 @@ export class ChatState {
     ctx: StateContext<ChatStateModel>,
     { conversationId, text }: ChatActions.SendMessage,
   ) {
-    return this.repo.sendMessage(conversationId, text).pipe(
+    return this.sendMessageUseCase.execute(conversationId, text).pipe(
       tap({
         next: message => {
           const state = ctx.getState();

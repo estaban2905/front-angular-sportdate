@@ -1,6 +1,6 @@
 <!-- chat.component.html
      Chat / Mensajes page template.
-     Left: chat list. Right (desktop): active conversation window with message input.
+     Left: conversation list. Right (desktop): active conversation window.
 -->
 
 <div class="h-full flex flex-col md:flex-row max-w-6xl mx-auto md:h-[calc(100vh-2rem)] md:py-4 gap-6">
@@ -15,37 +15,59 @@
       <h1 class="text-2xl font-black text-gray-900 dark:text-white mb-4 transition-colors">Mensajes</h1>
       <div class="relative">
         <i-lucide [img]="searchIcon" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i-lucide>
-        <input type="text" placeholder="Buscar chats..." class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] text-gray-900 dark:text-white transition-colors" />
+        <input
+          type="text"
+          placeholder="Buscar chats..."
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearch($event)"
+          class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]/20 focus:border-[#FF6B6B] text-gray-900 dark:text-white transition-colors"
+        />
       </div>
     </div>
 
-    <!-- Chat list -->
-    <div class="flex-1 overflow-y-auto">
-      @for (chat of chats; track chat.id) {
-        <div class="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-[#22223A] cursor-pointer transition-colors border-b border-gray-50 dark:border-[#2D2D4A] last:border-0">
-          <div class="relative mr-4">
-            <img [src]="chat.avatar" [alt]="chat.name" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#2D2D4A] object-cover" />
-            @if (chat.online) {
-              <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A2E]"></div>
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="flex-1 flex items-center justify-center text-gray-400 text-sm">Cargando...</div>
+    }
+
+    <!-- Conversation list -->
+    @if (!loading()) {
+      <div class="flex-1 overflow-y-auto">
+        @for (conversation of conversations(); track conversation.id) {
+          <div
+            (click)="selectConversation(conversation.id)"
+            [class]="'flex items-center p-4 hover:bg-gray-50 dark:hover:bg-[#22223A] cursor-pointer transition-colors border-b border-gray-50 dark:border-[#2D2D4A] last:border-0 ' + (activeConversation()?.id === conversation.id ? 'bg-gray-50 dark:bg-[#22223A]' : '')"
+          >
+            <div class="relative mr-4">
+              <img [src]="conversation.avatar" [alt]="conversation.name" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#2D2D4A] object-cover" />
+              @if (conversation.online) {
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A2E]"></div>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-baseline mb-1">
+                <h3 class="font-bold text-gray-900 dark:text-white truncate transition-colors">{{ conversation.name }}</h3>
+                <span class="text-xs text-gray-400 whitespace-nowrap ml-2">{{ conversation.time }}</span>
+              </div>
+              <p [class]="'text-sm truncate transition-colors ' + (conversation.unread > 0 ? 'font-bold text-gray-800 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400')">
+                {{ conversation.lastMessage }}
+              </p>
+            </div>
+            @if (conversation.unread > 0) {
+              <div class="ml-3 w-5 h-5 bg-[#FF6B6B] rounded-full flex items-center justify-center text-[10px] font-bold text-white">
+                {{ conversation.unread }}
+              </div>
             }
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between items-baseline mb-1">
-              <h3 class="font-bold text-gray-900 dark:text-white truncate transition-colors">{{ chat.name }}</h3>
-              <span class="text-xs text-gray-400 whitespace-nowrap ml-2">{{ chat.time }}</span>
-            </div>
-            <p [class]="'text-sm truncate transition-colors ' + (chat.unread > 0 ? 'font-bold text-gray-800 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400')">
-              {{ chat.message }}
-            </p>
+        }
+
+        @if (conversations().length === 0) {
+          <div class="flex-1 flex items-center justify-center p-8 text-center text-gray-400 text-sm">
+            No se encontraron conversaciones.
           </div>
-          @if (chat.unread > 0) {
-            <div class="ml-3 w-5 h-5 bg-[#FF6B6B] rounded-full flex items-center justify-center text-[10px] font-bold text-white">
-              {{ chat.unread }}
-            </div>
-          }
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- =====================================================================
@@ -53,75 +75,94 @@
        ===================================================================== -->
   <div class="hidden md:flex flex-1 bg-white dark:bg-[#1A1A2E] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2D2D4A] flex-col overflow-hidden transition-all duration-300">
 
-    <!-- Conversation header -->
-    <div class="p-4 border-b border-gray-100 dark:border-[#2D2D4A] flex justify-between items-center bg-gray-50/30 dark:bg-[#22223A]/30">
-      <div class="flex items-center">
-        <div class="relative mr-3">
-          <img [src]="chats[0].avatar" alt="User" class="w-10 h-10 rounded-full" />
-          <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A2E]"></div>
-        </div>
-        <div>
-          <h3 class="font-bold text-gray-900 dark:text-white transition-colors">{{ chats[0].name }}</h3>
-          <span class="text-xs text-green-600 dark:text-green-400 font-medium transition-colors">En línea</span>
-        </div>
-      </div>
-      <div class="flex items-center space-x-2 text-gray-400">
-        <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
-          <i-lucide [img]="phoneIcon" class="w-5 h-5"></i-lucide>
-        </button>
-        <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
-          <i-lucide [img]="videoIcon" class="w-5 h-5"></i-lucide>
-        </button>
-        <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
-          <i-lucide [img]="moreVerticalIcon" class="w-5 h-5"></i-lucide>
-        </button>
-      </div>
-    </div>
+    @if (activeConversation(); as conv) {
 
-    <!-- Messages area -->
-    <div class="flex-1 p-6 overflow-y-auto bg-[#FAFAFA] dark:bg-[#0F0F1A] space-y-4 transition-colors">
-      <div class="flex justify-center mb-6">
-        <span class="text-xs font-bold text-gray-400 bg-gray-100 dark:bg-[#22223A] px-3 py-1 rounded-full transition-colors">Hoy, 10:30 AM</span>
-      </div>
-      <!-- Outgoing -->
-      <div class="flex justify-end">
-        <div class="bg-[#FF6B6B] text-white px-4 py-2 rounded-2xl rounded-tr-none max-w-xs shadow-sm">
-          <p class="text-sm">¡Hola Camila! ¿Vas a ir al evento de running hoy?</p>
+      <!-- Conversation header -->
+      <div class="p-4 border-b border-gray-100 dark:border-[#2D2D4A] flex justify-between items-center bg-gray-50/30 dark:bg-[#22223A]/30">
+        <div class="flex items-center">
+          <div class="relative mr-3">
+            <img [src]="conv.avatar" [alt]="conv.name" class="w-10 h-10 rounded-full" />
+            @if (conv.online) {
+              <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A2E]"></div>
+            }
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 dark:text-white transition-colors">{{ conv.name }}</h3>
+            <span [class]="'text-xs font-medium transition-colors ' + (conv.online ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">
+              {{ conv.online ? 'En línea' : 'Desconectado' }}
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 text-gray-400">
+          <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
+            <i-lucide [img]="phoneIcon" class="w-5 h-5"></i-lucide>
+          </button>
+          <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
+            <i-lucide [img]="videoIcon" class="w-5 h-5"></i-lucide>
+          </button>
+          <button class="p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
+            <i-lucide [img]="moreVerticalIcon" class="w-5 h-5"></i-lucide>
+          </button>
         </div>
       </div>
-      <!-- Incoming -->
-      <div class="flex justify-start">
-        <img [src]="chats[0].avatar" alt="User" class="w-8 h-8 rounded-full mr-2 self-end mb-1" />
-        <div class="bg-white dark:bg-[#22223A] text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-[#2D2D4A] px-4 py-2 rounded-2xl rounded-tl-none max-w-xs shadow-sm transition-colors">
-          <p class="text-sm">¡Sii! Justo iba saliendo. ¿Nos juntamos allá?</p>
-        </div>
-      </div>
-      <!-- Outgoing -->
-      <div class="flex justify-end">
-        <div class="bg-[#FF6B6B] text-white px-4 py-2 rounded-2xl rounded-tr-none max-w-xs shadow-sm">
-          <p class="text-sm">¡Dale! Nos vemos en la entrada del parque a las 10.</p>
-        </div>
-      </div>
-      <!-- Incoming -->
-      <div class="flex justify-start">
-        <img [src]="chats[0].avatar" alt="User" class="w-8 h-8 rounded-full mr-2 self-end mb-1" />
-        <div class="bg-white dark:bg-[#22223A] text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-[#2D2D4A] px-4 py-2 rounded-2xl rounded-tl-none max-w-xs shadow-sm transition-colors">
-          <p class="text-sm">¡Nos vemos en el parque a las 10! 🏃‍♀️</p>
-        </div>
-      </div>
-    </div>
 
-    <!-- Message input -->
-    <div class="p-4 border-t border-gray-100 dark:border-[#2D2D4A] bg-white dark:bg-[#1A1A2E] transition-colors">
-      <div class="flex items-center bg-gray-50 dark:bg-[#22223A] rounded-xl px-4 py-2 border border-gray-200 dark:border-[#2D2D4A] focus-within:ring-2 focus-within:ring-[#FF6B6B]/20 focus-within:border-[#FF6B6B] transition-all">
-        <input type="text" placeholder="Escribe un mensaje..." class="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-sm py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" />
-        <button class="ml-2 p-2 bg-[#FF6B6B] text-white rounded-lg hover:bg-[#FF8E8E] transition-colors">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-        </button>
+      <!-- Messages area -->
+      <div class="flex-1 p-6 overflow-y-auto bg-[#FAFAFA] dark:bg-[#0F0F1A] space-y-4 transition-colors">
+        @for (message of activeMessages(); track message.id) {
+          @if (message.senderId === 'me') {
+            <!-- Outgoing message -->
+            <div class="flex justify-end">
+              <div class="bg-[#FF6B6B] text-white px-4 py-2 rounded-2xl rounded-tr-none max-w-xs shadow-sm">
+                <p class="text-sm">{{ message.text }}</p>
+              </div>
+            </div>
+          } @else {
+            <!-- Incoming message -->
+            <div class="flex justify-start">
+              <img [src]="conv.avatar" [alt]="conv.name" class="w-8 h-8 rounded-full mr-2 self-end mb-1" />
+              <div class="bg-white dark:bg-[#22223A] text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-[#2D2D4A] px-4 py-2 rounded-2xl rounded-tl-none max-w-xs shadow-sm transition-colors">
+                <p class="text-sm">{{ message.text }}</p>
+              </div>
+            </div>
+          }
+        }
+
+        @if (activeMessages().length === 0) {
+          <div class="flex items-center justify-center h-full text-gray-400 text-sm">
+            Sin mensajes aún. ¡Empieza la conversación!
+          </div>
+        }
       </div>
-    </div>
+
+      <!-- Message input -->
+      <div class="p-4 border-t border-gray-100 dark:border-[#2D2D4A] bg-white dark:bg-[#1A1A2E] transition-colors">
+        <div class="flex items-center bg-gray-50 dark:bg-[#22223A] rounded-xl px-4 py-2 border border-gray-200 dark:border-[#2D2D4A] focus-within:ring-2 focus-within:ring-[#FF6B6B]/20 focus-within:border-[#FF6B6B] transition-all">
+          <input
+            type="text"
+            placeholder="Escribe un mensaje..."
+            [(ngModel)]="messageText"
+            (keydown.enter)="onEnter($event)"
+            class="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-sm py-2 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+          />
+          <button
+            (click)="sendMessage()"
+            [disabled]="!messageText.trim()"
+            class="ml-2 p-2 bg-[#FF6B6B] text-white rounded-lg hover:bg-[#FF8E8E] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i-lucide [img]="sendIcon" class="w-4 h-4"></i-lucide>
+          </button>
+        </div>
+      </div>
+
+    } @else {
+
+      <!-- Empty state: no conversation selected -->
+      <div class="flex-1 flex flex-col items-center justify-center text-center p-8 text-gray-400">
+        <p class="text-4xl mb-4">💬</p>
+        <p class="font-semibold text-lg text-gray-500 dark:text-gray-400">Selecciona una conversación</p>
+        <p class="text-sm mt-1">Elige un chat de la lista para empezar.</p>
+      </div>
+
+    }
   </div>
 </div>

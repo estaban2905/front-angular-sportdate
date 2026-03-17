@@ -19,6 +19,18 @@
     <app-settings-modal position="below" variant="dark" />
   </div>
 
+  <!-- Location -->
+  <div class="px-4 py-3 border-b border-gray-800/50">
+    <div class="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
+      <i-lucide [img]="MapPinIcon" class="w-4 h-4 text-rose-400 flex-shrink-0"></i-lucide>
+      @if (cityLoading()) {
+        <span class="text-xs text-gray-500 animate-pulse">Obteniendo ubicación...</span>
+      } @else {
+        <span class="text-xs font-medium text-gray-300 truncate">{{ cityName() }}</span>
+      }
+    </div>
+  </div>
+
   <!-- Navigation -->
   <nav class="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
     @for (item of menuItems; track item.path) {

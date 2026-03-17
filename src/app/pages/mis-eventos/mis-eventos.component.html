@@ -1,0 +1,110 @@
+<!-- mis-eventos.component.html -->
+
+<div class="p-4 pt-6 pb-24 md:p-8 max-w-3xl mx-auto">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-gray-900 dark:text-white mb-1">🗓️ Mis Eventos</h1>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">Tus actividades como asistente y organizador</p>
+    </div>
+    <button (click)="goToEventos()"
+      class="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-[#22223A] text-white rounded-full text-sm font-bold hover:bg-[#FF6B6B] transition-colors border border-transparent dark:border-[#2D2D4A]">
+      <i-lucide [img]="plusIcon" class="w-4 h-4"></i-lucide>
+      Explorar
+    </button>
+  </header>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-6">
+    <button (click)="setTab('asistiendo')"
+      [class]="'px-5 py-2 rounded-full text-sm font-bold transition-all ' +
+        (activeTab === 'asistiendo'
+          ? 'bg-[#FF6B6B] text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20'
+          : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
+      Asistiendo
+      <span class="ml-1.5 text-xs bg-white/30 dark:bg-black/20 px-1.5 py-0.5 rounded-full">{{ attending().length }}</span>
+    </button>
+    <button (click)="setTab('creados')"
+      [class]="'px-5 py-2 rounded-full text-sm font-bold transition-all ' +
+        (activeTab === 'creados'
+          ? 'bg-[#FF6B6B] text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20'
+          : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
+      Creados por mí
+      <span class="ml-1.5 text-xs bg-white/30 dark:bg-black/20 px-1.5 py-0.5 rounded-full">{{ created().length }}</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-gray-200 dark:border-[#2D2D4A] border-t-[#FF6B6B] rounded-full animate-spin"></div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading() && activeEvents.length === 0) {
+    <div class="text-center py-20">
+      <div class="text-5xl mb-4">{{ activeTab === 'asistiendo' ? '🏃' : '📋' }}</div>
+      <p class="font-bold text-gray-700 dark:text-gray-300 mb-1">
+        {{ activeTab === 'asistiendo' ? 'No te has unido a ningún evento' : 'No has creado ningún evento' }}
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        {{ activeTab === 'asistiendo' ? 'Explora los eventos disponibles y únete' : 'Crea un evento y convoca a tu comunidad' }}
+      </p>
+      <button (click)="goToEventos()"
+        class="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-bold text-sm hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] dark:hover:text-white transition-colors">
+        Ir a Eventos
+      </button>
+    </div>
+  }
+
+  <!-- Events list -->
+  @if (!loading() && activeEvents.length > 0) {
+    <div class="space-y-4">
+      @for (event of activeEvents; track event.id) {
+        <div (click)="openEvent(event)"
+          class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-5 border border-gray-100 dark:border-[#2D2D4A] hover:shadow-lg dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+          <div class="flex items-start gap-4">
+            <!-- Emoji -->
+            <div class="w-12 h-12 rounded-xl bg-gray-50 dark:bg-[#22223A] flex items-center justify-center text-2xl shrink-0">
+              {{ event.sportEmoji }}
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-tight">{{ event.title }}</h3>
+                <span [class]="'text-xs font-bold px-2 py-0.5 rounded-md border shrink-0 ' +
+                  (event.status === 'open' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30' :
+                   event.status === 'full' ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-900/30' :
+                                             'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30')">
+                  {{ event.status === 'open' ? 'Abierto' : event.status === 'full' ? 'Completo' : 'Cancelado' }}
+                </span>
+              </div>
+
+              <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1">
+                  <i-lucide [img]="calendarIcon" class="w-3 h-3"></i-lucide>
+                  {{ event.date }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <i-lucide [img]="clockIcon" class="w-3 h-3"></i-lucide>
+                  {{ event.time }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <i-lucide [img]="mapPinIcon" class="w-3 h-3"></i-lucide>
+                  {{ event.location }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <i-lucide [img]="usersIcon" class="w-3 h-3"></i-lucide>
+                  {{ event.participants }}/{{ event.maxParticipants }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

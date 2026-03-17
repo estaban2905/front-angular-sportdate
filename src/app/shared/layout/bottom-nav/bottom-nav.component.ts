@@ -3,7 +3,7 @@
 
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { SettingsModalComponent } from '../../ui/settings-modal/settings-modal.component';
 import {
   LucideAngularModule,

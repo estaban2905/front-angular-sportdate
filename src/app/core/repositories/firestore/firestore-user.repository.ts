@@ -3,7 +3,6 @@
  *
  * Firestore implementation of UserRepository.
  *
- * Path: SPORTDATE/main/
  *   - user_stats/me     → single document with UserStats fields
  *   - profiles/{id}     → Profile documents
  *   - achievements/{id} → Achievement documents
@@ -19,10 +18,11 @@ import { Profile, UserStats, Achievement } from '../../models';
 @Injectable()
 export class FirestoreUserRepository extends UserRepository {
   private readonly db = inject(FIRESTORE);
+  private readonly dbRoot = inject(DB_ROOT);
 
   getUserStats(): Observable<UserStats> {
     return new Observable<UserStats>(observer => {
-      const ref = doc(this.db, `${DB_ROOT}/user_stats/me`);
+      const ref = doc(this.db, `${this.dbRoot}/user_stats/me`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -40,7 +40,7 @@ export class FirestoreUserRepository extends UserRepository {
 
   getProfiles(): Observable<Profile[]> {
     return new Observable<Profile[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/profiles`);
+      const ref = collection(this.db, `${this.dbRoot}/profiles`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -55,7 +55,7 @@ export class FirestoreUserRepository extends UserRepository {
 
   getAchievements(): Observable<Achievement[]> {
     return new Observable<Achievement[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/achievements`);
+      const ref = collection(this.db, `${this.dbRoot}/achievements`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {

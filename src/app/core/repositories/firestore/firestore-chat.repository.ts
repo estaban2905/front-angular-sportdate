@@ -27,10 +27,11 @@ import { Conversation, ChatMessage } from '../../../store/chat/chat.model';
 @Injectable()
 export class FirestoreChatRepository extends ChatRepository {
   private readonly db = inject(FIRESTORE);
+  private readonly dbRoot = inject(DB_ROOT);
 
   getConversations(): Observable<Conversation[]> {
     return new Observable<Conversation[]>(observer => {
-      const ref = collection(this.db, `${DB_ROOT}/conversations`);
+      const ref = collection(this.db, `${this.dbRoot}/conversations`);
       const unsubscribe = onSnapshot(
         ref,
         snapshot => {
@@ -46,7 +47,7 @@ export class FirestoreChatRepository extends ChatRepository {
   getMessages(conversationId: number): Observable<ChatMessage[]> {
     return new Observable<ChatMessage[]>(observer => {
       const ref = query(
-        collection(this.db, `${DB_ROOT}/messages`),
+        collection(this.db, `${this.dbRoot}/messages`),
         where('conversationId', '==', conversationId),
         orderBy('_order', 'asc'),
       );
@@ -82,7 +83,7 @@ export class FirestoreChatRepository extends ChatRepository {
       _order: Date.now(),
     };
 
-    return from(addDoc(collection(this.db, `${DB_ROOT}/messages`), message)).pipe(
+    return from(addDoc(collection(this.db, `${this.dbRoot}/messages`), message)).pipe(
       map(docRef => ({
         id: docRef.id,
         conversationId,
