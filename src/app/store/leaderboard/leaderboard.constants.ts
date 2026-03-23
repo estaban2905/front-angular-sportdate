@@ -5,5 +5,6 @@ export const LEADERBOARD_STATE_DEFAULTS: LeaderboardStateModel = {
   leaderboard: [],
   teams: [],
   championships: [],
+  userRank: null,
   loading: false,
 };

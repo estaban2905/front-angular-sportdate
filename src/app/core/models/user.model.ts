@@ -55,6 +55,24 @@ export interface UserStats {
   rating: number;
 }
 
+/** A single day in the weekly activity chart. */
+export interface WeeklyActivityDay {
+  /** Abbreviated day label in Spanish: L, M, X, J, V, S, D */
+  day: string;
+  /** Number of activities (event joins + logged activities) for that day. */
+  count: number;
+}
+
+/** A single item in the user's recent activity feed. */
+export interface RecentActivityItem {
+  id: string;
+  type: string;
+  title: string;
+  icon: string;
+  /** ISO date string */
+  createdAt: string;
+}
+
 /** An achievement badge earned through in-app activity. */
 export interface Achievement {
   /** Unique identifier. */

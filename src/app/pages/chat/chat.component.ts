@@ -51,7 +51,7 @@ export class ChatComponent implements OnInit {
     this.store.dispatch(new ChatActions.LoadConversations());
   }
 
-  selectConversation(id: number): void {
+  selectConversation(id: string): void {
     this.store.dispatch(new ChatActions.SelectConversation(id));
   }
 

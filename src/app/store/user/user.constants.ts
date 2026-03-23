@@ -7,5 +7,7 @@ export const USER_STATE_DEFAULTS: UserStateModel = {
   userStats: null,
   profiles: [],
   achievements: [],
+  weeklyActivity: [],
+  recentActivity: [],
   loading: false,
 };

@@ -23,4 +23,9 @@ export abstract class LeaderboardRepository {
    * Returns championship tournament data.
    */
   abstract getChampionships(): Observable<Championship[]>;
+
+  /**
+   * Returns the authenticated user's numeric rank in the global leaderboard.
+   */
+  abstract getUserRank(): Observable<number>;
 }

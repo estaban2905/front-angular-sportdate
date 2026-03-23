@@ -10,3 +10,4 @@ export * from './event.model';
 export * from './community.model';
 export * from './leaderboard.model';
 export * from './descubrir.model';
+export * from './notification.model';

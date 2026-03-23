@@ -111,7 +111,7 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
 
   get isJoined(): boolean {
     const uid = this.currentUser()?.uid;
-    return !!uid && (this.event()?.participantIds ?? []).includes(uid);
+    return !!uid && this.attendances().some(a => a.userId === uid);
   }
 
   get isFull(): boolean {
@@ -300,7 +300,16 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
-    this.marker = L.marker([lat, lng], { draggable: true }).addTo(this.map);
+    const markerIcon = L.icon({
+      iconUrl:       'assets/leaflet/marker-icon.png',
+      iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+      shadowUrl:     'assets/leaflet/marker-shadow.png',
+      iconSize:    [25, 41],
+      iconAnchor:  [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize:  [41, 41],
+    });
+    this.marker = L.marker([lat, lng], { icon: markerIcon, draggable: true }).addTo(this.map);
     this.marker.on('dragend', () => {
       const pos = this.marker!.getLatLng();
       this.editForm.locationLat = pos.lat;

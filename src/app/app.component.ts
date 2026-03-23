@@ -8,7 +8,7 @@ import { BottomNavComponent } from './shared/layout/bottom-nav/bottom-nav.compon
 import { ToastComponent } from './shared/ui/toast/toast.component';
 import { AuthService } from './core/services/auth.service';
 import { AuthActions } from './store/auth/auth.actions';
-import { FirestoreSeedService } from './core/services/firestore-seed.service';
+import { HttpSeedService } from './core/services/http-seed.service';
 
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 

@@ -28,4 +28,8 @@ export namespace LeaderboardActions {
     static readonly type = '[Leaderboard] Load Championships Success';
     constructor(public championships: Championship[]) {}
   }
+
+  export class LoadUserRank {
+    static readonly type = '[Leaderboard] Load User Rank';
+  }
 }

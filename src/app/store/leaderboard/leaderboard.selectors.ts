@@ -20,6 +20,11 @@ export class LeaderboardSelectors {
   }
 
   @Selector([LeaderboardState])
+  static userRank(state: LeaderboardStateModel) {
+    return state.userRank;
+  }
+
+  @Selector([LeaderboardState])
   static loading(state: LeaderboardStateModel) {
     return state.loading;
   }

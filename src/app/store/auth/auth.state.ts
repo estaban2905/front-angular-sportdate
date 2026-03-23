@@ -6,6 +6,7 @@ import { State, Action, StateContext } from '@ngxs/store';
 import { tap, catchError, EMPTY } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
 import { GeoService } from '@core/services/geo.service';
+import { NotificationsService } from '@core/services/notifications.service';
 import { AuthStateModel } from './auth.model';
 import { AuthActions } from './auth.actions';
 
@@ -24,12 +25,17 @@ const DEFAULTS: AuthStateModel = {
 export class AuthState {
   private readonly authService = inject(AuthService);
   private readonly geoService = inject(GeoService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly router = inject(Router);
 
   @Action(AuthActions.SetUser)
   setUser(ctx: StateContext<AuthStateModel>, { user }: AuthActions.SetUser) {
     ctx.patchState({ user, error: null });
-    if (user) this.geoService.captureUserPosition();
+    if (user) {
+      this.geoService.captureUserPosition();
+      this.notificationsService.connectSocket(user.uid);
+      this.notificationsService.load().subscribe();
+    }
   }
 
   @Action(AuthActions.Login)
@@ -50,6 +56,8 @@ export class AuthState {
   loginSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.LoginSuccess) {
     ctx.patchState({ user, loading: false, error: null });
     this.geoService.captureUserPosition();
+    this.notificationsService.connectSocket(user.uid);
+    this.notificationsService.load().subscribe();
     this.router.navigate(['/dashboard']);
   }
 
@@ -79,6 +87,8 @@ export class AuthState {
   registerSuccess(ctx: StateContext<AuthStateModel>, { user }: AuthActions.RegisterSuccess) {
     ctx.patchState({ user, loading: false, error: null });
     this.geoService.captureUserPosition();
+    this.notificationsService.connectSocket(user.uid);
+    this.notificationsService.load().subscribe();
     this.router.navigate(['/dashboard']);
   }
 
@@ -123,15 +133,16 @@ export class AuthState {
 
   @Action(AuthActions.Logout)
   logout(ctx: StateContext<AuthStateModel>) {
-    return this.authService.logout().pipe(
-      tap(() => ctx.dispatch(new AuthActions.LogoutSuccess())),
-    );
+    // Fire-and-forget: clear local state immediately regardless of HTTP result
+    this.authService.logout().subscribe({ error: () => {} });
+    ctx.dispatch(new AuthActions.LogoutSuccess());
   }
 
   @Action(AuthActions.LogoutSuccess)
   logoutSuccess(ctx: StateContext<AuthStateModel>) {
     ctx.patchState({ user: null, error: null });
     this.geoService.clearCachedPosition();
+    this.notificationsService.disconnectSocket();
     this.router.navigate(['/login']);
   }
 

@@ -15,8 +15,11 @@
       </div>
     </div>
 
-    <!-- Settings modal (replaces theme toggle) -->
-    <app-settings-modal position="below" variant="dark" />
+    <!-- Notification bell + Settings -->
+    <div class="flex items-center gap-1">
+      <app-notification-bell direction="down" align="left" />
+      <app-settings-modal position="below" variant="dark" />
+    </div>
   </div>
 
   <!-- Location -->

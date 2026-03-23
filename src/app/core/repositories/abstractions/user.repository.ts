@@ -10,21 +10,12 @@
  */
 
 import { Observable } from 'rxjs';
-import { Profile, UserStats, Achievement } from '../../models';
+import { Profile, UserStats, Achievement, WeeklyActivityDay, RecentActivityItem } from '../../models';
 
 export abstract class UserRepository {
-  /**
-   * Returns the aggregated statistics for the currently logged-in user.
-   */
   abstract getUserStats(): Observable<UserStats>;
-
-  /**
-   * Returns the list of discoverable athlete profiles for the match screen.
-   */
   abstract getProfiles(): Observable<Profile[]>;
-
-  /**
-   * Returns all achievements, both locked and unlocked, for the current user.
-   */
   abstract getAchievements(): Observable<Achievement[]>;
+  abstract getWeeklyActivity(): Observable<WeeklyActivityDay[]>;
+  abstract getRecentActivity(): Observable<RecentActivityItem[]>;
 }

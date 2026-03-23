@@ -270,8 +270,19 @@ export class EventosComponent implements OnInit, OnDestroy {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
+    // Fix broken Leaflet default marker icons in Angular builds
+    const markerIcon = L.icon({
+      iconUrl:       'assets/leaflet/marker-icon.png',
+      iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+      shadowUrl:     'assets/leaflet/marker-shadow.png',
+      iconSize:    [25, 41],
+      iconAnchor:  [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize:  [41, 41],
+    });
+
     const isEdit = containerId === 'event-location-map-edit';
-    this.marker = L.marker([lat, lng], { draggable: true }).addTo(this.map);
+    this.marker = L.marker([lat, lng], { icon: markerIcon, draggable: true }).addTo(this.map);
 
     this.marker.on('dragend', () => {
       const pos = this.marker!.getLatLng();

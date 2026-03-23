@@ -9,6 +9,6 @@ import { Conversation, ChatMessage } from '../../../store/chat/chat.model';
 
 export abstract class ChatRepository {
   abstract getConversations(): Observable<Conversation[]>;
-  abstract getMessages(conversationId: number): Observable<ChatMessage[]>;
-  abstract sendMessage(conversationId: number, text: string): Observable<ChatMessage>;
+  abstract getMessages(conversationId: string): Observable<ChatMessage[]>;
+  abstract sendMessage(conversationId: string, text: string): Observable<ChatMessage>;
 }

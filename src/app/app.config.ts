@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection, provideAppInitializer, inject } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { withNgxsReduxDevtoolsPlugin } from '@ngxs/devtools-plugin';
@@ -22,28 +23,26 @@ import { LeaderboardRepository } from '@core/repositories/abstractions/leaderboa
 import { CommunityRepository } from '@core/repositories/abstractions/community.repository';
 import { ChatRepository } from '@core/repositories/abstractions/chat.repository';
 import { DescubrirRepository } from '@core/repositories/abstractions/descubrir.repository';
-import { FirestoreUserRepository } from '@core/repositories/firestore/firestore-user.repository';
-import { FirestoreEventRepository } from '@core/repositories/firestore/firestore-event.repository';
-import { FirestoreLeaderboardRepository } from '@core/repositories/firestore/firestore-leaderboard.repository';
-import { FirestoreCommunityRepository } from '@core/repositories/firestore/firestore-community.repository';
-import { FirestoreChatRepository } from '@core/repositories/firestore/firestore-chat.repository';
-import { FirestoreDescubrirRepository } from '@core/repositories/firestore/firestore-descubrir.repository';
-import { provideFirebase } from '@core/firebase/firebase.provider';
+import { HttpUserRepository } from '@core/repositories/http/http-user.repository';
+import { HttpEventRepository } from '@core/repositories/http/http-event.repository';
+import { HttpLeaderboardRepository } from '@core/repositories/http/http-leaderboard.repository';
+import { HttpCommunityRepository } from '@core/repositories/http/http-community.repository';
+import { HttpChatRepository } from '@core/repositories/http/http-chat.repository';
+import { HttpDescubrirRepository } from '@core/repositories/http/http-descubrir.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withHashLocation()),
     provideAnimationsAsync(),
-    provideHttpClient(),
-    provideFirebase(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(
       [AuthState, UserState, EventsState, LeaderboardState, CommunitiesState, ChatState, MatchState, DescubrirState],
       withNgxsReduxDevtoolsPlugin(),
     ),
 
     /**
-     * Resolves the Firebase auth session BEFORE the router runs any guards.
+     * Resolves the HTTP auth session BEFORE the router runs any guards.
      * Without this, on page refresh the store has user=null when guards execute,
      * causing a redirect to /login even for authenticated users.
      */
@@ -60,11 +59,11 @@ export const appConfig: ApplicationConfig = {
       });
     }),
 
-    { provide: UserRepository, useClass: FirestoreUserRepository },
-    { provide: EventRepository, useClass: FirestoreEventRepository },
-    { provide: LeaderboardRepository, useClass: FirestoreLeaderboardRepository },
-    { provide: CommunityRepository, useClass: FirestoreCommunityRepository },
-    { provide: ChatRepository,     useClass: FirestoreChatRepository },
-    { provide: DescubrirRepository, useClass: FirestoreDescubrirRepository },
+    { provide: UserRepository, useClass: HttpUserRepository },
+    { provide: EventRepository, useClass: HttpEventRepository },
+    { provide: LeaderboardRepository, useClass: HttpLeaderboardRepository },
+    { provide: CommunityRepository, useClass: HttpCommunityRepository },
+    { provide: ChatRepository, useClass: HttpChatRepository },
+    { provide: DescubrirRepository, useClass: HttpDescubrirRepository },
   ],
 };

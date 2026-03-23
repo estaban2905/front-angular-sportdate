@@ -1,7 +1,7 @@
 // store/chat/chat.model.ts
 
 export interface Conversation {
-  id: number;
+  id: string;
   name: string;
   lastMessage: string;
   time: string;
@@ -12,7 +12,7 @@ export interface Conversation {
 
 export interface ChatMessage {
   id: string;
-  conversationId: number;
+  conversationId: string;
   /** 'me' for the current user, userId string for others */
   senderId: string;
   text: string;
@@ -23,8 +23,8 @@ export interface ChatMessage {
 export interface ChatStateModel {
   conversations: Conversation[];
   /** Messages indexed by conversationId */
-  messages: Record<number, ChatMessage[]>;
-  activeConversationId: number | null;
+  messages: Record<string, ChatMessage[]>;
+  activeConversationId: string | null;
   searchQuery: string;
   loading: boolean;
 }

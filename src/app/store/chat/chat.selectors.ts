@@ -20,7 +20,7 @@ export class ChatSelectors {
   }
 
   @Selector([ChatState])
-  static activeConversationId(state: ChatStateModel): number | null {
+  static activeConversationId(state: ChatStateModel): string | null {
     return state.activeConversationId;
   }
 

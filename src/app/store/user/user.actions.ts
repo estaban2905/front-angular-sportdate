@@ -1,6 +1,6 @@
 // store/user/user.actions.ts
 
-import { Profile, UserStats, Achievement } from '@core/models';
+import { Profile, UserStats, Achievement, WeeklyActivityDay, RecentActivityItem } from '@core/models';
 
 export namespace UserActions {
   export class LoadUserStats {
@@ -40,6 +40,24 @@ export namespace UserActions {
   export class SetActiveProfileIndex {
     static readonly type = '[User] Set Active Profile Index';
     constructor(public index: number) {}
+  }
+
+  export class LoadWeeklyActivity {
+    static readonly type = '[User] Load Weekly Activity';
+  }
+
+  export class LoadWeeklyActivitySuccess {
+    static readonly type = '[User] Load Weekly Activity Success';
+    constructor(public days: WeeklyActivityDay[]) {}
+  }
+
+  export class LoadRecentActivity {
+    static readonly type = '[User] Load Recent Activity';
+  }
+
+  export class LoadRecentActivitySuccess {
+    static readonly type = '[User] Load Recent Activity Success';
+    constructor(public items: RecentActivityItem[]) {}
   }
 
   /**

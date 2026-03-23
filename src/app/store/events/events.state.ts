@@ -57,7 +57,7 @@ export class EventsState {
   }
 
   @Action(EventsActions.CreateEvent)
-  createEvent(_ctx: StateContext<EventsStateModel>, action: EventsActions.CreateEvent) {
+  createEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.CreateEvent) {
     const authUser = this.store.selectSnapshot(AuthSelectors.user);
     if (!authUser?.uid) return;
     const profile = { displayName: authUser.displayName, photoURL: authUser.photoURL };
@@ -70,7 +70,12 @@ export class EventsState {
             this.repo.joinEvent(event.id, authUser.uid, {
               ...profile,
               ...(distanceKm != null ? { distanceKm: distanceKm as number } : {}),
-            }),
+            }).pipe(
+              tap(() => {
+                // Add the new event to the top of the list immediately
+                ctx.patchState({ events: [event, ...ctx.getState().events] });
+              }),
+            ),
           ),
         ),
       ),
@@ -96,11 +101,10 @@ export class EventsState {
   }
 
   @Action(EventsActions.JoinEvent)
-  joinEvent(_ctx: StateContext<EventsStateModel>, action: EventsActions.JoinEvent) {
+  joinEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.JoinEvent) {
     const authUser = this.store.selectSnapshot(AuthSelectors.user);
     if (!authUser?.uid) return;
 
-    // Guard: skip silently if already a participant (prevents double-increment on rapid clicks).
     const selectedEvent = this.store.selectSnapshot(EventsSelectors.selectedEvent);
     if ((selectedEvent?.participantIds ?? []).includes(authUser.uid)) return;
 
@@ -111,8 +115,6 @@ export class EventsState {
         ? { lat: selectedEvent.lat, lng: selectedEvent.lng }
         : undefined;
 
-    // No optimistic update — repo emits reactively, active loadEvents/loadEventDetail
-    // subscriptions will update the state automatically (avoids double-increment).
     return this.geoService.distanceToEvent(eventCoords, eventLocation).pipe(
       switchMap(distanceKm =>
         this.repo.joinEvent(action.eventId, authUser.uid, {
@@ -120,25 +122,32 @@ export class EventsState {
           ...(distanceKm != null ? { distanceKm: distanceKm as number } : {}),
         }),
       ),
+      switchMap(() => ctx.dispatch([
+        new EventsActions.LoadEventDetail(action.eventId),
+        new EventsActions.LoadAttendances(action.eventId),
+      ])),
     );
   }
 
   @Action(EventsActions.LeaveEvent)
-  leaveEvent(_ctx: StateContext<EventsStateModel>, action: EventsActions.LeaveEvent) {
+  leaveEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.LeaveEvent) {
     const userId = this.store.selectSnapshot(AuthSelectors.user)?.uid;
     if (!userId) return;
-    return this.repo.leaveEvent(action.eventId, userId);
+    return this.repo.leaveEvent(action.eventId, userId).pipe(
+      switchMap(() => ctx.dispatch([
+        new EventsActions.LoadEventDetail(action.eventId),
+        new EventsActions.LoadAttendances(action.eventId),
+      ])),
+    );
   }
 
   @Action(EventsActions.UpdateEvent)
   updateEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.UpdateEvent) {
     return this.repo.updateEvent(action.eventId, action.changes).pipe(
-      tap(() => {
-        const events = ctx.getState().events.map(e =>
-          e.id === action.eventId ? { ...e, ...action.changes } : e,
-        );
-        ctx.patchState({ events });
-      }),
+      switchMap(() => ctx.dispatch([
+        new EventsActions.LoadEventDetail(action.eventId),
+        new EventsActions.LoadEvents(),
+      ])),
     );
   }
 

@@ -28,7 +28,7 @@ export class SendMessageUseCase {
    * @param text           - Raw text from the input field.
    * @returns Observable<ChatMessage> on success, or an error if validation fails.
    */
-  execute(conversationId: number, text: string): Observable<ChatMessage> {
+  execute(conversationId: string, text: string): Observable<ChatMessage> {
     const trimmed = text.trim();
 
     if (!trimmed) {

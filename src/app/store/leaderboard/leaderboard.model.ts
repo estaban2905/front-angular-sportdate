@@ -5,5 +5,6 @@ export interface LeaderboardStateModel {
   leaderboard: LeaderboardEntry[];
   teams: TeamEntry[];
   championships: Championship[];
+  userRank: number | null;
   loading: boolean;
 }

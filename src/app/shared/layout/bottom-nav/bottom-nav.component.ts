@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeService } from '../../../core/services/theme.service';
 import { SettingsModalComponent } from '../../ui/settings-modal/settings-modal.component';
+import { NotificationBellComponent } from '../../ui/notification-bell/notification-bell.component';
 import {
   LucideAngularModule,
   Swords, Calendar, MessageCircle, User, LayoutDashboard,
@@ -14,7 +15,7 @@ import { APP_ROUTES } from '../../../constants/app-routing.constants';
 @Component({
   selector: 'app-bottom-nav',
   standalone: true,
-  imports: [LucideAngularModule, RouterLink, RouterLinkActive, SettingsModalComponent],
+  imports: [LucideAngularModule, RouterLink, RouterLinkActive, SettingsModalComponent, NotificationBellComponent],
   templateUrl: './bottom-nav.component.html',
   styleUrl: './bottom-nav.component.scss',
 })

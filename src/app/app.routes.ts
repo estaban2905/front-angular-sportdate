@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { APP_ROUTES } from './constants/app-routing.constants';
 import { authGuard } from '@core/guards/auth.guard';
 import { noAuthGuard } from '@core/guards/no-auth.guard';
-import { adminGuard } from '@core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: APP_ROUTES.DASHBOARD, pathMatch: 'full' },
@@ -88,11 +87,5 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/perfil/perfil.component').then(m => m.PerfilComponent),
-  },
-  {
-    path: APP_ROUTES.CONFIGURACION,
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./pages/configuracion/configuracion.routes').then(m => m.configuracionRoutes),
   },
 ];

@@ -27,6 +27,16 @@ export class UserSelectors {
   }
 
   @Selector([UserState])
+  static weeklyActivity(state: UserStateModel) {
+    return state.weeklyActivity;
+  }
+
+  @Selector([UserState])
+  static recentActivity(state: UserStateModel) {
+    return state.recentActivity;
+  }
+
+  @Selector([UserState])
   static unlockedCount(state: UserStateModel) {
     return state.achievements.filter(a => !!a.unlockedAt).length;
   }

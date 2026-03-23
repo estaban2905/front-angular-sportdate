@@ -14,22 +14,22 @@ export namespace ChatActions {
 
   export class SelectConversation {
     static readonly type = '[Chat] Select Conversation';
-    constructor(public id: number) {}
+    constructor(public id: string) {}
   }
 
   export class LoadMessages {
     static readonly type = '[Chat] Load Messages';
-    constructor(public conversationId: number) {}
+    constructor(public conversationId: string) {}
   }
 
   export class LoadMessagesSuccess {
     static readonly type = '[Chat] Load Messages Success';
-    constructor(public conversationId: number, public messages: ChatMessage[]) {}
+    constructor(public conversationId: string, public messages: ChatMessage[]) {}
   }
 
   export class SendMessage {
     static readonly type = '[Chat] Send Message';
-    constructor(public conversationId: number, public text: string) {}
+    constructor(public conversationId: string, public text: string) {}
   }
 
   export class SendMessageSuccess {
@@ -39,7 +39,7 @@ export namespace ChatActions {
 
   export class MarkConversationRead {
     static readonly type = '[Chat] Mark Conversation Read';
-    constructor(public conversationId: number) {}
+    constructor(public conversationId: string) {}
   }
 
   export class SetSearchQuery {

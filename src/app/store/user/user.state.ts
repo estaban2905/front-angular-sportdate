@@ -60,6 +60,20 @@ export class UserState {
     );
   }
 
+  @Action(UserActions.LoadWeeklyActivity)
+  loadWeeklyActivity(ctx: StateContext<UserStateModel>) {
+    return this.repo.getWeeklyActivity().pipe(
+      tap({ next: weeklyActivity => ctx.patchState({ weeklyActivity }) }),
+    );
+  }
+
+  @Action(UserActions.LoadRecentActivity)
+  loadRecentActivity(ctx: StateContext<UserStateModel>) {
+    return this.repo.getRecentActivity().pipe(
+      tap({ next: recentActivity => ctx.patchState({ recentActivity }) }),
+    );
+  }
+
   @Action(UserActions.UpdateUserStats)
   updateUserStats(
     ctx: StateContext<UserStateModel>,

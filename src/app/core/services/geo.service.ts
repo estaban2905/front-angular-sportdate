@@ -174,7 +174,8 @@ export class GeoService {
     const url =
       `https://nominatim.openstreetmap.org/search` +
       `?q=${encodeURIComponent(query)}` +
-      `&format=json&limit=5&countrycodes=cl&addressdetails=1`;
+      `&format=json&limit=5&countrycodes=cl&addressdetails=1` +
+      `&email=sportdate-app@noreply.com`;
     return this.http
       .get<NominatimResult[]>(url, { headers: { 'Accept-Language': 'es' } })
       .pipe(

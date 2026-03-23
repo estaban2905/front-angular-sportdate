@@ -39,4 +39,11 @@ export class LeaderboardState {
       tap({ next: championships => ctx.patchState({ championships }) }),
     );
   }
+
+  @Action(LeaderboardActions.LoadUserRank)
+  loadUserRank(ctx: StateContext<LeaderboardStateModel>) {
+    return this.repo.getUserRank().pipe(
+      tap({ next: userRank => ctx.patchState({ userRank }) }),
+    );
+  }
 }

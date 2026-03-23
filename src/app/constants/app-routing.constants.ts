@@ -10,6 +10,5 @@ export const APP_ROUTES = {
   RANKING:          'ranking',
   CHAT:             'chat',
   PERFIL:           'perfil',
-  CONFIGURACION:    'configuracion',
-  MIS_EVENTOS:      'eventos/mis',
+MIS_EVENTOS:      'eventos/mis',
 } as const;
