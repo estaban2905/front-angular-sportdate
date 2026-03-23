@@ -15,16 +15,19 @@ import { LeaderboardState } from '@store/leaderboard';
 import { CommunitiesState } from '@store/communities';
 import { ChatState } from '@store/chat';
 import { MatchState } from '@store/match';
+import { DescubrirState } from '@store/descubrir';
 import { UserRepository } from '@core/repositories/abstractions/user.repository';
 import { EventRepository } from '@core/repositories/abstractions/event.repository';
 import { LeaderboardRepository } from '@core/repositories/abstractions/leaderboard.repository';
 import { CommunityRepository } from '@core/repositories/abstractions/community.repository';
 import { ChatRepository } from '@core/repositories/abstractions/chat.repository';
+import { DescubrirRepository } from '@core/repositories/abstractions/descubrir.repository';
 import { FirestoreUserRepository } from '@core/repositories/firestore/firestore-user.repository';
 import { FirestoreEventRepository } from '@core/repositories/firestore/firestore-event.repository';
 import { FirestoreLeaderboardRepository } from '@core/repositories/firestore/firestore-leaderboard.repository';
 import { FirestoreCommunityRepository } from '@core/repositories/firestore/firestore-community.repository';
 import { FirestoreChatRepository } from '@core/repositories/firestore/firestore-chat.repository';
+import { FirestoreDescubrirRepository } from '@core/repositories/firestore/firestore-descubrir.repository';
 import { provideFirebase } from '@core/firebase/firebase.provider';
 
 export const appConfig: ApplicationConfig = {
@@ -35,7 +38,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideFirebase(),
     provideStore(
-      [AuthState, UserState, EventsState, LeaderboardState, CommunitiesState, ChatState, MatchState],
+      [AuthState, UserState, EventsState, LeaderboardState, CommunitiesState, ChatState, MatchState, DescubrirState],
       withNgxsReduxDevtoolsPlugin(),
     ),
 
@@ -61,6 +64,7 @@ export const appConfig: ApplicationConfig = {
     { provide: EventRepository, useClass: FirestoreEventRepository },
     { provide: LeaderboardRepository, useClass: FirestoreLeaderboardRepository },
     { provide: CommunityRepository, useClass: FirestoreCommunityRepository },
-    { provide: ChatRepository, useClass: FirestoreChatRepository },
+    { provide: ChatRepository,     useClass: FirestoreChatRepository },
+    { provide: DescubrirRepository, useClass: FirestoreDescubrirRepository },
   ],
 };

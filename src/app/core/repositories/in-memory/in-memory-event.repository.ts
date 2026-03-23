@@ -104,6 +104,21 @@ export class InMemoryEventRepository extends EventRepository {
     return this.getAttendanceSubject(eventId).asObservable().pipe(delay(200));
   }
 
+  updateEvent(eventId: string, changes: Partial<Omit<SportEvent, 'id'>>): Observable<void> {
+    const idx = this.events.findIndex(e => e.id === eventId);
+    if (idx !== -1) {
+      const updated = [...this.events];
+      updated[idx] = { ...updated[idx], ...changes };
+      this.events$.next(updated);
+    }
+    return of(undefined).pipe(delay(200));
+  }
+
+  deleteEvent(eventId: string): Observable<void> {
+    this.events$.next(this.events.filter(e => e.id !== eventId));
+    return of(undefined).pipe(delay(200));
+  }
+
   private getAttendanceSubject(eventId: string): BehaviorSubject<Attendance[]> {
     if (!this.attendances.has(eventId)) {
       this.attendances.set(eventId, new BehaviorSubject<Attendance[]>([]));

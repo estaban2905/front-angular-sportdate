@@ -68,4 +68,10 @@ export namespace AuthActions {
     static readonly type = '[Auth] Reset Password Failure';
     constructor(public error: string) {}
   }
+
+  /** Update the current user's display name in Firebase Auth. */
+  export class UpdateDisplayName {
+    static readonly type = '[Auth] Update Display Name';
+    constructor(public displayName: string) {}
+  }
 }

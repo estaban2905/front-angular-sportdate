@@ -23,6 +23,9 @@ export const MANAGED_COLLECTIONS: ManagedCollection[] = [
   { name: 'teams',         label: 'Equipos',        emoji: '⚔️', restorable: true  },
   { name: 'championships', label: 'Campeonatos',    emoji: '🏅', restorable: true  },
   { name: 'user_stats',    label: 'Stats usuario',  emoji: '📊', restorable: true  },
+  { name: 'retos',         label: 'Retos',          emoji: '⚔️', restorable: true  },
+  { name: 'resultados',    label: 'Resultados',     emoji: '🏆', restorable: true  },
+  { name: 'calificaciones',label: 'Calificaciones', emoji: '⭐', restorable: true  },
   { name: 'conversations', label: 'Conversaciones', emoji: '💬', restorable: false },
   { name: 'messages',      label: 'Mensajes',       emoji: '✉️', restorable: false },
 ];

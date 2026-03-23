@@ -45,8 +45,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
                        focus:outline-none focus:ring-2 focus:ring-[#FF6B6B]/40 focus:border-[#FF6B6B]
                        transition-all duration-200 text-sm"
               />
-              @if (form.get('displayName')?.invalid && form.get('displayName')?.touched) {
+              @if (form.get('displayName')?.errors?.['required'] && form.get('displayName')?.touched) {
                 <p class="text-xs text-red-500 mt-1">El nombre es obligatorio.</p>
+              }
+              @if (form.get('displayName')?.errors?.['minlength'] && form.get('displayName')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Mínimo 2 caracteres.</p>
+              }
+              @if (form.get('displayName')?.errors?.['maxlength'] && form.get('displayName')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Máximo 30 caracteres.</p>
               }
             </div>
 
@@ -173,7 +179,7 @@ export class RegisterComponent {
 
   readonly form = this.fb.nonNullable.group(
     {
-      displayName:     ['', [Validators.required, Validators.minLength(2)]],
+      displayName:     ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
       email:           ['', [Validators.required, Validators.email]],
       password:        ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],

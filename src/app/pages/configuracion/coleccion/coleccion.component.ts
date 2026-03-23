@@ -13,7 +13,7 @@
  *  - Restore collection from mock data
  */
 
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, NgZone } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -50,6 +50,7 @@ export class ColeccionComponent implements OnInit, OnDestroy {
   private readonly admin       = inject(FirestoreAdminService);
   private readonly seedService = inject(FirestoreSeedService);
   private readonly shell       = inject(ConfiguracionComponent);
+  private readonly ngZone      = inject(NgZone);
 
   // ---------------------------------------------------------------------------
   // State
@@ -89,13 +90,15 @@ export class ColeccionComponent implements OnInit, OnDestroy {
 
     this.sub = this.admin.watchCollection(this.collectionName).subscribe({
       next: docs => {
-        this.docs = docs;
-        this.loading = false;
-        if (docs.length > 0 && this.columns.length === 0) {
-          this.columns = this._deriveColumns(docs[0]);
-        }
+        this.ngZone.run(() => {
+          this.docs = docs;
+          this.loading = false;
+          if (docs.length > 0 && this.columns.length === 0) {
+            this.columns = this._deriveColumns(docs[0]);
+          }
+        });
       },
-      error: () => { this.loading = false; },
+      error: () => { this.ngZone.run(() => { this.loading = false; }); },
     });
   }
 

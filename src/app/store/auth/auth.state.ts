@@ -134,4 +134,18 @@ export class AuthState {
     this.geoService.clearCachedPosition();
     this.router.navigate(['/login']);
   }
+
+  @Action(AuthActions.UpdateDisplayName)
+  updateDisplayName(
+    ctx: StateContext<AuthStateModel>,
+    { displayName }: AuthActions.UpdateDisplayName,
+  ) {
+    ctx.patchState({ loading: true, error: null });
+    return this.authService.updateDisplayName(displayName).pipe(
+      tap({
+        next: user => ctx.patchState({ user, loading: false }),
+        error: err => ctx.patchState({ loading: false, error: this.authService.mapError(err) }),
+      }),
+    );
+  }
 }

@@ -9,3 +9,4 @@ export * from './user.model';
 export * from './event.model';
 export * from './community.model';
 export * from './leaderboard.model';
+export * from './descubrir.model';

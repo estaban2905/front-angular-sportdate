@@ -10,7 +10,7 @@ import { SettingsModalComponent } from '../../ui/settings-modal/settings-modal.c
 import { USER_STATS } from '../../../data';
 import {
   LucideAngularModule,
-  LayoutDashboard, Heart, Calendar, Users, Trophy, MessageCircle, Flame, Settings, BookMarked, MapPin,
+  LayoutDashboard, Swords, Calendar, Users, Trophy, MessageCircle, Flame, Settings, BookMarked, MapPin,
 } from 'lucide-angular';
 import { APP_ROUTES } from '../../../constants/app-routing.constants';
 
@@ -24,6 +24,7 @@ import { APP_ROUTES } from '../../../constants/app-routing.constants';
 export class SidebarComponent implements OnInit {
   readonly flameIcon = Flame;
   readonly MapPinIcon = MapPin;
+  readonly swordsIcon = Swords;
   readonly userStats = USER_STATS;
 
   private readonly geo = inject(GeoService);
@@ -36,7 +37,7 @@ export class SidebarComponent implements OnInit {
 
   readonly menuItems = [
     { path: `/${APP_ROUTES.DASHBOARD}`,   label: 'Dashboard',    icon: LayoutDashboard },
-    { path: `/${APP_ROUTES.MATCH}`,       label: 'Descubrir',    icon: Heart },
+    { path: `/${APP_ROUTES.DESCUBRIR}`,   label: 'Descubrir',    icon: Swords },
     { path: `/${APP_ROUTES.EVENTOS}`,     label: 'Eventos',      icon: Calendar },
     { path: `/${APP_ROUTES.MIS_EVENTOS}`, label: 'Mis Eventos',  icon: BookMarked },
     { path: `/${APP_ROUTES.GRUPOS}`,      label: 'Comunidades',  icon: Users },

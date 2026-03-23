@@ -129,4 +129,26 @@ export class EventsState {
     if (!userId) return;
     return this.repo.leaveEvent(action.eventId, userId);
   }
+
+  @Action(EventsActions.UpdateEvent)
+  updateEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.UpdateEvent) {
+    return this.repo.updateEvent(action.eventId, action.changes).pipe(
+      tap(() => {
+        const events = ctx.getState().events.map(e =>
+          e.id === action.eventId ? { ...e, ...action.changes } : e,
+        );
+        ctx.patchState({ events });
+      }),
+    );
+  }
+
+  @Action(EventsActions.DeleteEvent)
+  deleteEvent(ctx: StateContext<EventsStateModel>, action: EventsActions.DeleteEvent) {
+    return this.repo.deleteEvent(action.eventId).pipe(
+      tap(() => {
+        const events = ctx.getState().events.filter(e => e.id !== action.eventId);
+        ctx.patchState({ events });
+      }),
+    );
+  }
 }

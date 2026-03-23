@@ -58,6 +58,14 @@ export class AuthService {
     );
   }
 
+  updateDisplayName(displayName: string): Observable<AuthUser> {
+    const user = this.auth.currentUser;
+    if (!user) throw new Error('No authenticated user.');
+    return from(
+      updateProfile(user, { displayName }).then(() => this.toAuthUser(user)),
+    );
+  }
+
   sendPasswordReset(email: string): Observable<void> {
     return from(sendPasswordResetEmail(this.auth, email));
   }

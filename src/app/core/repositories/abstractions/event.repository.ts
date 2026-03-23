@@ -20,4 +20,6 @@ export abstract class EventRepository {
   ): Observable<void>;
   abstract leaveEvent(eventId: string, userId: string): Observable<void>;
   abstract getAttendances(eventId: string): Observable<Attendance[]>;
+  abstract updateEvent(eventId: string, changes: Partial<Omit<SportEvent, 'id'>>): Observable<void>;
+  abstract deleteEvent(eventId: string): Observable<void>;
 }

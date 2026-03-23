@@ -19,9 +19,9 @@
   <div class="flex justify-center md:justify-start mb-6">
     <div class="bg-gray-100 dark:bg-[#22223A] p-1 rounded-xl inline-flex">
       @for (tab of tabs; track tab) {
-        <button (click)="activeTab = tab"
+        <button (click)="setTab(tab)"
           [class]="'px-6 py-2 rounded-lg text-sm font-bold transition-all ' +
-            (activeTab === tab ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')">
+            (activeTab() === tab ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')">
           {{ tab }}
         </button>
       }
@@ -31,14 +31,14 @@
   <!-- =====================================================================
        Individual Tab
        ===================================================================== -->
-  @if (activeTab === 'Individual') {
+  @if (activeTab() === 'Individual') {
 
     <!-- Filters -->
     <div class="flex gap-2 overflow-x-auto no-scrollbar pb-4 mb-6 justify-center md:justify-start">
       @for (filter of filters; track filter) {
-        <button (click)="activeFilter = filter"
+        <button (click)="setFilter(filter)"
           [class]="'px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ' +
-            (activeFilter === filter ? 'bg-gray-900 dark:bg-[#F0F0F5] text-white dark:text-gray-900 shadow-lg shadow-gray-200 dark:shadow-none scale-105' : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
+            (activeFilter() === filter ? 'bg-gray-900 dark:bg-[#F0F0F5] text-white dark:text-gray-900 shadow-lg shadow-gray-200 dark:shadow-none scale-105' : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
           {{ filter }}
         </button>
       }
@@ -124,7 +124,7 @@
   <!-- =====================================================================
        Equipos Tab
        ===================================================================== -->
-  @if (activeTab === 'Equipos') {
+  @if (activeTab() === 'Equipos') {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       @for (team of teams(); track team.id) {
         <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-[#2D2D4A] flex items-center gap-4 hover:shadow-md transition-all">
@@ -156,7 +156,7 @@
   <!-- =====================================================================
        Campeonatos Tab
        ===================================================================== -->
-  @if (activeTab === 'Campeonatos') {
+  @if (activeTab() === 'Campeonatos') {
     <div class="space-y-4">
       @for (champ of championships(); track champ.id) {
         <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-[#2D2D4A] relative overflow-hidden group">

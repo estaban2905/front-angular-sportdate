@@ -18,6 +18,9 @@ import {
   TeamEntry,
   Championship,
   Attendance,
+  Reto,
+  Resultado,
+  Calificacion,
 } from '../../models';
 
 // ---------------------------------------------------------------------------
@@ -480,4 +483,135 @@ export const MOCK_CHAMPIONSHIPS: Championship[] = [
   { id: 'ch1', name: 'Liga Fútbol 5 Ovalle', sport: '⚽', status: 'En curso', round: 'Semifinal', teams: 8, startDate: 'Mar 2024', prize: '500 XP + Trofeo', color: 'bg-emerald-500' },
   { id: 'ch2', name: 'Torneo Padel Primavera Ovalle', sport: '🎾', status: 'Inscripciones', round: 'Fase de grupos', teams: 16, startDate: 'Abr 2024', prize: '1000 XP + Medalla', color: 'bg-blue-500' },
   { id: 'ch3', name: 'Maratón Running Ovalle', sport: '🏃', status: 'Finalizado', round: 'Final', teams: 32, startDate: 'Feb 2024', prize: '800 XP', color: 'bg-orange-500' },
+];
+
+// ---------------------------------------------------------------------------
+// Descubrir: Retos
+// ---------------------------------------------------------------------------
+
+export const MOCK_RETOS: Reto[] = [
+  {
+    id: 'r1',
+    defiadorId: 'me', defiadorNombre: 'Tú', defiadorEquipo: 'Águilas FC',
+    retadoId: '1',    retadoNombre: 'Camila', retadoEquipo: 'Los Rápidos FC',
+    sport: 'Fútbol', sportEmoji: '⚽',
+    fecha: '22 Mar', fechaISO: '2026-03-22',
+    lugar: 'Cancha Norte',
+    status: 'pendiente',
+    apuesta: 'Honor del equipo',
+    createdAt: '2026-03-15T10:00:00.000Z',
+  },
+  {
+    id: 'r2',
+    defiadorId: '2', defiadorNombre: 'Diego', defiadorEquipo: 'Padel Bros',
+    retadoId: 'me',  retadoNombre: 'Tú', retadoEquipo: 'Padel Kings',
+    sport: 'Padel', sportEmoji: '🏓',
+    fecha: '24 Mar', fechaISO: '2026-03-24',
+    lugar: 'Club Deportivo',
+    status: 'aceptado',
+    apuesta: 'Cenas del equipo',
+    createdAt: '2026-03-14T09:00:00.000Z',
+  },
+  {
+    id: 'r3',
+    defiadorId: 'me', defiadorNombre: 'Tú', defiadorEquipo: 'Rockets',
+    retadoId: '3',    retadoNombre: 'Sofía', retadoEquipo: 'Team Thunder',
+    sport: 'Baloncesto', sportEmoji: '🏀',
+    fecha: '15 Mar', fechaISO: '2026-03-15',
+    lugar: 'Pabellón Central',
+    status: 'completado',
+    ganadorId: 'me',
+    createdAt: '2026-03-08T11:00:00.000Z',
+  },
+  {
+    id: 'r4',
+    defiadorId: '4', defiadorNombre: 'Matías', defiadorEquipo: 'Running Stars',
+    retadoId: 'me',  retadoNombre: 'Tú', retadoEquipo: 'Speed Crew',
+    sport: 'Running', sportEmoji: '🏃',
+    fecha: '10 Mar', fechaISO: '2026-03-10',
+    lugar: 'Parque del Retiro',
+    status: 'rechazado',
+    createdAt: '2026-03-05T08:00:00.000Z',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Descubrir: Resultados
+// ---------------------------------------------------------------------------
+
+export const MOCK_RESULTADOS: Resultado[] = [
+  {
+    id: 'res1',
+    eventoId: 'e1',
+    eventoTitle: 'Liga de Fútbol Sala - Semana 8',
+    sport: 'Fútbol', sportEmoji: '⚽',
+    fecha: '15 Mar', fechaISO: '2026-03-15',
+    lugar: 'Pabellón Municipal',
+    equipoLocal: 'Águilas FC', equipoLocalId: 'me',
+    equipoVisita: 'Los Rápidos', equipoVisitaId: '1',
+    golesLocal: 4, golesVisita: 2,
+    mvp: 'Carlos M.', mvpId: '2',
+    participantIds: ['me', '1', '2', '3'],
+    createdAt: '2026-03-15T22:00:00.000Z',
+  },
+  {
+    id: 'res2',
+    eventoTitle: 'Torneo Padel Parejas',
+    sport: 'Padel', sportEmoji: '🏓',
+    fecha: '12 Mar', fechaISO: '2026-03-12',
+    lugar: 'Club Deportivo',
+    equipoLocal: 'Padel Kings', equipoLocalId: 'me',
+    equipoVisita: 'Smash Bros', equipoVisitaId: '4',
+    golesLocal: 6, golesVisita: 4,
+    mvp: 'Ana R.', mvpId: '3',
+    participantIds: ['me', '4', '3'],
+    createdAt: '2026-03-12T20:00:00.000Z',
+  },
+  {
+    id: 'res3',
+    eventoTitle: 'Copa Baloncesto Primavera',
+    sport: 'Baloncesto', sportEmoji: '🏀',
+    fecha: '9 Mar', fechaISO: '2026-03-09',
+    lugar: 'Pabellón Norte',
+    equipoLocal: 'City Wolves',
+    equipoVisita: 'Rockets', equipoVisitaId: 'me',
+    golesLocal: 78, golesVisita: 64,
+    mvp: 'Marcos L.',
+    participantIds: ['me', '2'],
+    createdAt: '2026-03-09T21:00:00.000Z',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Descubrir: Calificaciones
+// ---------------------------------------------------------------------------
+
+export const MOCK_CALIFICACIONES: Calificacion[] = [
+  {
+    id: 'cal1',
+    autorId: '2', autorNombre: 'Diego',
+    receptorId: 'me', receptorNombre: 'Tú', receptorAvatar: 'from-blue-500 to-indigo-600',
+    eventoId: 'e1', eventoTitle: 'Liga Sala - Semana 8',
+    sport: 'Fútbol', rating: 5,
+    comentario: 'Excelente compañero, siempre animando al equipo.',
+    createdAt: '2026-03-15T23:00:00.000Z',
+  },
+  {
+    id: 'cal2',
+    autorId: '3', autorNombre: 'Sofía',
+    receptorId: 'me', receptorNombre: 'Tú', receptorAvatar: 'from-blue-500 to-indigo-600',
+    eventoTitle: 'Torneo Padel Parejas',
+    sport: 'Padel', rating: 4,
+    comentario: 'Muy buen juego, gran actitud deportiva.',
+    createdAt: '2026-03-12T21:00:00.000Z',
+  },
+  {
+    id: 'cal3',
+    autorId: 'me', autorNombre: 'Tú',
+    receptorId: '4', receptorNombre: 'Matías', receptorAvatar: 'from-green-500 to-teal-600',
+    eventoTitle: 'Carrera del Parque',
+    sport: 'Running', rating: 5,
+    comentario: 'Increíble ritmo, nos motivó a todos.',
+    createdAt: '2026-03-08T19:00:00.000Z',
+  },
 ];

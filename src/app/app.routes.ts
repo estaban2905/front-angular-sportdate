@@ -1,23 +1,28 @@
 import { Routes } from '@angular/router';
 import { APP_ROUTES } from './constants/app-routing.constants';
 import { authGuard } from '@core/guards/auth.guard';
+import { noAuthGuard } from '@core/guards/no-auth.guard';
+import { adminGuard } from '@core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: APP_ROUTES.DASHBOARD, pathMatch: 'full' },
 
-  // ── Auth routes (public) ──────────────────────────────────────────────────
+  // ── Auth routes (public, redirect if already logged in) ──────────────────
   {
     path: APP_ROUTES.LOGIN,
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/login/login.component').then(m => m.LoginComponent),
   },
   {
     path: APP_ROUTES.REGISTER,
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/register/register.component').then(m => m.RegisterComponent),
   },
   {
     path: APP_ROUTES.FORGOT_PASSWORD,
+    canActivate: [noAuthGuard],
     loadComponent: () =>
       import('./pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
   },
@@ -34,6 +39,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/match/match.component').then(m => m.MatchComponent),
+  },
+  {
+    path: APP_ROUTES.DESCUBRIR,
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/descubrir/descubrir.component').then(m => m.DescubrirComponent),
   },
   {
     path: APP_ROUTES.EVENTOS,

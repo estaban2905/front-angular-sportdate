@@ -11,7 +11,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { collection, doc, onSnapshot, addDoc, updateDoc, runTransaction, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, runTransaction, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { FIRESTORE, DB_ROOT } from '../../firebase/firebase.provider';
 import { EventRepository } from '../abstractions/event.repository';
 import { SportEvent, Challenge, Attendance } from '../../models';
@@ -89,10 +89,18 @@ export class FirestoreEventRepository extends EventRepository {
       runTransaction(this.db, async tx => {
         const snap = await tx.get(eventRef);
         if (!snap.exists()) return;
-        const participantIds: string[] = snap.data()['participantIds'] ?? [];
+        const data = snap.data();
+        const participantIds: string[] = data['participantIds'] ?? [];
         // Idempotency guard: skip if already joined (prevents double-increment).
         if (participantIds.includes(userId)) return;
-        tx.update(eventRef, { participants: increment(1), participantIds: arrayUnion(userId) });
+        const newCount = (data['participants'] ?? 0) + 1;
+        const maxParticipants: number = data['maxParticipants'] ?? Infinity;
+        const newStatus = newCount >= maxParticipants ? 'full' : 'open';
+        tx.update(eventRef, {
+          participants: increment(1),
+          participantIds: arrayUnion(userId),
+          status: newStatus,
+        });
         tx.set(attendanceRef, attendanceData);
       }),
     ).pipe(map(() => undefined));
@@ -102,10 +110,23 @@ export class FirestoreEventRepository extends EventRepository {
     const eventRef = doc(this.db, `${this.dbRoot}/events/${eventId}`);
     const attendanceRef = doc(this.db, `${this.dbRoot}/events/${eventId}/attendances/${userId}`);
     return from(
-      Promise.all([
-        updateDoc(eventRef, { participants: increment(-1), participantIds: arrayRemove(userId) }),
-        updateDoc(attendanceRef, { status: 'cancelled' }),
-      ]),
+      runTransaction(this.db, async tx => {
+        const snap = await tx.get(eventRef);
+        if (!snap.exists()) return;
+        const data = snap.data();
+        const participantIds: string[] = data['participantIds'] ?? [];
+        if (!participantIds.includes(userId)) return;
+        const newCount = Math.max(0, (data['participants'] ?? 1) - 1);
+        const maxParticipants: number = data['maxParticipants'] ?? Infinity;
+        const newStatus = newCount < maxParticipants ? 'open' : 'full';
+        tx.update(eventRef, {
+          participants: increment(-1),
+          participantIds: arrayRemove(userId),
+          status: newStatus,
+        });
+        const attendRef = doc(this.db, `${this.dbRoot}/events/${eventId}/attendances/${userId}`);
+        tx.update(attendRef, { status: 'cancelled' });
+      }),
     ).pipe(map(() => undefined));
   }
 
@@ -119,5 +140,15 @@ export class FirestoreEventRepository extends EventRepository {
       );
       return () => unsubscribe();
     });
+  }
+
+  updateEvent(eventId: string, changes: Partial<Omit<SportEvent, 'id'>>): Observable<void> {
+    const ref = doc(this.db, `${this.dbRoot}/events/${eventId}`);
+    return from(updateDoc(ref, changes as Record<string, unknown>)).pipe(map(() => undefined));
+  }
+
+  deleteEvent(eventId: string): Observable<void> {
+    const ref = doc(this.db, `${this.dbRoot}/events/${eventId}`);
+    return from(deleteDoc(ref)).pipe(map(() => undefined));
   }
 }

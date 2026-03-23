@@ -1,7 +1,7 @@
 <!-- eventos.component.html
      Eventos (Sport Events) page template.
      Contains: header with search/create, sport filters,
-     events grid, add-new card, and create-event modal.
+     events grid, add-new card, and create/edit event modals.
 -->
 
 <div class="p-4 pt-6 pb-24 md:p-8 max-w-7xl mx-auto relative">
@@ -35,15 +35,16 @@
        Sport Filters
        ===================================================================== -->
   <div class="flex gap-2 overflow-x-auto no-scrollbar pb-6 mb-2">
-    @for (filter of sportFilters; track filter; let i = $index) {
-      <button [class]="'px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ' +
-        (i === 0 ? 'bg-[#FF6B6B] text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20' : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
+    @for (filter of sportFilters; track filter) {
+      <button
+        (click)="setFilter(filter)"
+        [class]="'px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ' +
+          (activeSportFilter() === filter
+            ? 'bg-[#FF6B6B] text-white shadow-md shadow-rose-200 dark:shadow-rose-900/20'
+            : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A] hover:bg-gray-50 dark:hover:bg-[#22223A]')">
         {{ filter }}
       </button>
     }
-    <button class="px-3 py-2 rounded-full border border-gray-200 dark:border-[#2D2D4A] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#22223A] md:hidden transition-colors">
-      <i-lucide [img]="filterIcon" class="w-4 h-4"></i-lucide>
-    </button>
   </div>
 
   <!-- =====================================================================
@@ -51,7 +52,7 @@
        ===================================================================== -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-    <!-- Add New Card (siempre primero) -->
+    <!-- Add New Card -->
     <div (click)="isModalOpen = true"
       class="border-2 border-dashed border-gray-200 dark:border-[#2D2D4A] rounded-3xl p-6 flex flex-col items-center justify-center text-center min-h-[200px] hover:border-[#FF6B6B] dark:hover:border-[#FF6B6B] hover:bg-red-50/30 dark:hover:bg-red-900/10 transition-colors cursor-pointer group">
       <div class="w-16 h-16 rounded-full bg-gray-50 dark:bg-[#22223A] flex items-center justify-center mb-4 group-hover:bg-white dark:group-hover:bg-[#2D2D4A] group-hover:shadow-md transition-all">
@@ -91,18 +92,23 @@
               <i-lucide [img]="mapPinIcon" class="w-4 h-4 mr-2 text-gray-400"></i-lucide>
               <span class="truncate">{{ event.location }}</span>
             </div>
-            @if (event.level) {
-              <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              @if (event.modality) {
+                <span class="text-xs font-semibold bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-md border border-purple-100 dark:border-purple-900/30">
+                  {{ event.modality }}
+                </span>
+              }
+              @if (event.level) {
                 <span class="text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-md border border-blue-100 dark:border-blue-900/30">
                   {{ event.level }}
                 </span>
-                @if (event.courtType) {
-                  <span class="text-xs font-semibold bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-md border border-green-100 dark:border-green-900/30">
-                    {{ event.courtType }}
-                  </span>
-                }
-              </div>
-            }
+              }
+              @if (event.courtType) {
+                <span class="text-xs font-semibold bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-md border border-green-100 dark:border-green-900/30">
+                  {{ event.courtType }}
+                </span>
+              }
+            </div>
           </div>
           <div class="pt-4 border-t border-gray-50 dark:border-[#2D2D4A] flex items-center justify-between transition-colors">
             <div class="flex items-center">
@@ -115,9 +121,23 @@
                 {{ event.participants }}/{{ event.maxParticipants }}
               </span>
             </div>
-            <button (click)="openEvent(event)" class="px-5 py-2.5 bg-gray-900 dark:bg-[#22223A] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] transition-colors border border-transparent dark:border-[#2D2D4A]">
-              Ver evento
-            </button>
+            <div class="flex items-center gap-2">
+              @if (event.createdBy === currentUserId()) {
+                <button (click)="openEditModal(event); $event.stopPropagation()"
+                  class="p-2 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  title="Editar evento">
+                  <i-lucide [img]="pencilIcon" class="w-4 h-4"></i-lucide>
+                </button>
+                <button (click)="deleteEvent(event); $event.stopPropagation()"
+                  class="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  title="Eliminar evento">
+                  <i-lucide [img]="trash2Icon" class="w-4 h-4"></i-lucide>
+                </button>
+              }
+              <button (click)="openEvent(event)" class="px-5 py-2.5 bg-gray-900 dark:bg-[#22223A] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] transition-colors border border-transparent dark:border-[#2D2D4A]">
+                Ver evento
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -126,47 +146,97 @@
   </div>
 
   <!-- =====================================================================
-       Create Event Modal
+       Shared form partial (used in both modals)
        ===================================================================== -->
-  @if (isModalOpen) {
+
+  <!-- =====================================================================
+       Edit Event Modal
+       ===================================================================== -->
+  @if (isEditModalOpen) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div (click)="closeModal()" class="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"></div>
+      <div (click)="closeEditModal()" class="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"></div>
       <div class="bg-white dark:bg-[#1A1A2E] rounded-3xl p-6 w-full max-w-lg relative z-10 shadow-2xl border border-gray-100 dark:border-[#2D2D4A] animate-scale-in max-h-[90vh] overflow-y-auto">
-        <button (click)="closeModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
+        <button (click)="closeEditModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
           <i-lucide [img]="xIcon" class="w-5 h-5 text-gray-500"></i-lucide>
         </button>
-        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-6">Crear Nuevo Evento</h2>
+        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-6">Editar Evento</h2>
 
-        <form class="space-y-4" (ngSubmit)="submitEvent()">
+        <form class="space-y-5" (ngSubmit)="submitEditEvent()">
 
           <!-- Title -->
           <div>
             <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Título del Evento *</label>
-            <input type="text" name="title" [(ngModel)]="newEvent.title"
+            <input type="text" name="editTitle" [(ngModel)]="editForm.title"
               placeholder="Ej: Partido Amistoso"
               class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
           </div>
 
-          <!-- Sport + Max Participants -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Deporte *</label>
-              <select name="sport" [(ngModel)]="newEvent.sport"
-                class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white appearance-none">
-                <option value="">Seleccionar...</option>
-                @for (s of sportOptions; track s) {
-                  <option [value]="s">{{ s }}</option>
-                }
-              </select>
+          <!-- Sport visual selector -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Deporte *</label>
+            <div class="grid grid-cols-5 gap-2">
+              @for (s of sportGrid; track s.name) {
+                <button type="button" (click)="selectEditSport(s.name)"
+                  [class]="'flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all cursor-pointer ' +
+                    (editForm.sport === s.name
+                      ? 'border-[#FF6B6B] bg-red-50 dark:bg-red-900/20'
+                      : 'border-gray-200 dark:border-[#2D2D4A] bg-gray-50 dark:bg-[#22223A] hover:border-gray-300 dark:hover:border-[#3D3D5A]')">
+                  <span class="text-xl leading-none">{{ s.emoji }}</span>
+                  <span [class]="'text-[10px] font-bold leading-tight text-center ' +
+                    (editForm.sport === s.name ? 'text-[#FF6B6B]' : 'text-gray-500 dark:text-gray-400')">
+                    {{ s.name }}
+                  </span>
+                </button>
+              }
             </div>
+          </div>
+
+          <!-- Modality chips (shown after sport selected) -->
+          @if (editForm.sport && editModalities.length) {
             <div>
-              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Máx. participantes *</label>
-              <div class="relative">
-                <i-lucide [img]="usersIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
-                <input type="number" name="maxParticipants" [(ngModel)]="newEvent.maxParticipants"
-                  min="2" placeholder="Ej: 10"
-                  class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Modalidad *</label>
+              <div class="flex flex-wrap gap-2">
+                @for (mod of editModalities; track mod.value) {
+                  <button type="button" (click)="selectEditModality(mod.value)"
+                    [class]="'px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ' +
+                      (editForm.modality === mod.value
+                        ? 'border-[#FF6B6B] bg-[#FF6B6B] text-white shadow-sm'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-[#FF6B6B]/50')">
+                    {{ mod.label }}
+                    <span class="ml-1 opacity-60 text-xs">{{ mod.defaultPlayers }}p</span>
+                  </button>
+                }
               </div>
+            </div>
+          }
+
+          <!-- Max Participants -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+              Máx. participantes *
+              @if (editForm.modality) {
+                <span class="ml-1 text-xs font-normal text-gray-400">(ajustado para {{ editForm.modality }})</span>
+              }
+            </label>
+            <!-- Quick chips -->
+            @if (editPlayerChips.length > 1) {
+              <div class="flex gap-2 mb-2">
+                @for (n of editPlayerChips; track n) {
+                  <button type="button" (click)="editForm.maxParticipants = n"
+                    [class]="'px-3 py-1 rounded-lg text-xs font-bold border transition-all ' +
+                      (editForm.maxParticipants === n
+                        ? 'border-[#FF6B6B] bg-[#FF6B6B] text-white'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-[#FF6B6B]/50')">
+                    {{ n }}
+                  </button>
+                }
+              </div>
+            }
+            <div class="relative">
+              <i-lucide [img]="usersIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
+              <input type="number" name="editMaxParticipants" [(ngModel)]="editForm.maxParticipants"
+                min="2" placeholder="Número de jugadores"
+                class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
             </div>
           </div>
 
@@ -176,7 +246,232 @@
               <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Fecha *</label>
               <div class="relative">
                 <i-lucide [img]="calendarIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
+                <input type="date" name="editDate" [(ngModel)]="editForm.date"
+                  [min]="todayISO"
+                  class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Hora *</label>
+              <div class="relative">
+                <i-lucide [img]="clockIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
+                <input type="time" name="editTime" [(ngModel)]="editForm.time"
+                  class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Location with autocomplete -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Ubicación *</label>
+            <div class="relative">
+              <i-lucide [img]="mapPinIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
+              <input type="text" name="editLocation" [(ngModel)]="editForm.location"
+                (input)="onEditLocationInput($any($event.target).value)"
+                placeholder="Busca un lugar en Chile…"
+                autocomplete="off"
+                class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
+              @if (isSearchingEditLocations) {
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-gray-300 border-t-[#FF6B6B] rounded-full animate-spin"></span>
+              }
+              @if (editLocationSuggestions.length > 0) {
+                <ul class="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-[#1A1A2E] border border-gray-200 dark:border-[#2D2D4A] rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
+                  @for (place of editLocationSuggestions; track place.lat) {
+                    <li (click)="selectEditLocation(place)"
+                        class="flex items-start gap-2 px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-[#22223A] transition-colors">
+                      <i-lucide [img]="mapPinIcon" class="w-4 h-4 text-[#FF6B6B] shrink-0 mt-0.5"></i-lucide>
+                      <div class="min-w-0">
+                        <p class="font-semibold text-gray-800 dark:text-gray-200 truncate">{{ place.shortName }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ place.displayName }}</p>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+            @if (editForm.locationLat != null) {
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                <i-lucide [img]="mapPinIcon" class="w-3 h-3"></i-lucide>
+                Ubicación confirmada · arrastra el pin para ajustar
+              </p>
+              <div id="event-location-map-edit" class="mt-2 w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-[#2D2D4A] z-0"></div>
+            }
+          </div>
+
+          <!-- Court type (shown for applicable sports) -->
+          @if (showEditCourtType) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tipo de cancha / superficie</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" (click)="editForm.courtType = ''"
+                  [class]="'px-3 py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ' +
+                    (!editForm.courtType ? 'border-gray-400 bg-gray-100 dark:bg-[#2D2D4A] text-gray-700 dark:text-gray-200' : 'border-gray-200 dark:border-[#2D2D4A] text-gray-400 bg-white dark:bg-[#22223A]')">
+                  Sin preferencia
+                </button>
+                @for (ct of editCourtTypes; track ct) {
+                  <button type="button" (click)="editForm.courtType = ct"
+                    [class]="'px-3 py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ' +
+                      (editForm.courtType === ct
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-emerald-300')">
+                    {{ ct }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Level (shown for sports with hasLevel=true) -->
+          @if (showEditLevel) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nivel requerido</label>
+              <div class="flex gap-2">
+                @for (lvl of ['Principiante', 'Intermedio', 'Avanzado']; track lvl) {
+                  <button type="button" (click)="editForm.level = editForm.level === lvl ? '' : lvl"
+                    [class]="'flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all ' +
+                      (editForm.level === lvl
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-500 dark:text-gray-400 bg-white dark:bg-[#22223A] hover:border-blue-300')">
+                    {{ lvl }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+            <textarea rows="3" name="editDescription" [(ngModel)]="editForm.description"
+              placeholder="Detalles adicionales, qué traer, nivel esperado..."
+              class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white resize-none"></textarea>
+          </div>
+
+          <button type="submit"
+            [disabled]="isEditSaving || !editForm.title || !editForm.sport || !editForm.date || !editForm.time || !editForm.location || !editForm.maxParticipants"
+            class="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold py-4 rounded-xl hover:bg-[#FF6B6B] dark:hover:bg-[#FF6B6B] dark:hover:text-white transition-colors shadow-lg mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (isEditSaving) {
+              <span class="inline-flex items-center gap-2">
+                <span class="w-4 h-4 border-2 border-current/40 border-t-current rounded-full animate-spin"></span>
+                Guardando…
+              </span>
+            } @else {
+              Guardar Cambios
+            }
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- =====================================================================
+       Create Event Modal
+       ===================================================================== -->
+  @if (isModalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div (click)="closeModal()" class="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"></div>
+      <div class="bg-white dark:bg-[#1A1A2E] rounded-3xl p-6 w-full max-w-lg relative z-10 shadow-2xl border border-gray-100 dark:border-[#2D2D4A] animate-scale-in max-h-[90vh] overflow-y-auto">
+
+        <!-- Header -->
+        <button (click)="closeModal()" class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-[#22223A] rounded-full transition-colors">
+          <i-lucide [img]="xIcon" class="w-5 h-5 text-gray-500"></i-lucide>
+        </button>
+        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-1">Crear Nuevo Evento</h2>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mb-6">Elige el deporte y el formato para comenzar</p>
+
+        <form class="space-y-5" (ngSubmit)="submitEvent()">
+
+          <!-- ── PASO 1: Título ── -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Título del Evento *</label>
+            <input type="text" name="title" [(ngModel)]="newEvent.title"
+              placeholder="Ej: Partido Amistoso"
+              class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
+          </div>
+
+          <!-- ── PASO 2: Deporte (visual grid) ── -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+              Deporte *
+            </label>
+            <div class="grid grid-cols-5 gap-2">
+              @for (s of sportGrid; track s.name) {
+                <button type="button" (click)="selectSport(s.name)"
+                  [class]="'flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all cursor-pointer ' +
+                    (newEvent.sport === s.name
+                      ? 'border-[#FF6B6B] bg-red-50 dark:bg-red-900/20'
+                      : 'border-gray-200 dark:border-[#2D2D4A] bg-gray-50 dark:bg-[#22223A] hover:border-gray-300 dark:hover:border-[#3D3D5A]')">
+                  <span class="text-xl leading-none">{{ s.emoji }}</span>
+                  <span [class]="'text-[10px] font-bold leading-tight text-center ' +
+                    (newEvent.sport === s.name ? 'text-[#FF6B6B]' : 'text-gray-500 dark:text-gray-400')">
+                    {{ s.name }}
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- ── PASO 3: Modalidad (chips, aparece al elegir deporte) ── -->
+          @if (newEvent.sport && createModalities.length) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Formato / Modalidad *
+              </label>
+              <div class="flex flex-wrap gap-2">
+                @for (mod of createModalities; track mod.value) {
+                  <button type="button" (click)="selectModality(mod.value)"
+                    [class]="'px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all ' +
+                      (newEvent.modality === mod.value
+                        ? 'border-[#FF6B6B] bg-[#FF6B6B] text-white shadow-sm'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-[#FF6B6B]/50')">
+                    {{ mod.label }}
+                    <span class="ml-1 opacity-60 text-xs">{{ mod.defaultPlayers }}p</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ── PASO 4: Participantes (se auto-rellena con la modalidad) ── -->
+          @if (newEvent.sport) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                Máx. participantes *
+                @if (newEvent.modality) {
+                  <span class="ml-1 text-xs font-normal text-gray-400">(sugerido para {{ newEvent.modality }})</span>
+                }
+              </label>
+              <!-- Quick chips si hay múltiples opciones -->
+              @if (createPlayerChips.length > 1) {
+                <div class="flex gap-2 mb-2">
+                  @for (n of createPlayerChips; track n) {
+                    <button type="button" (click)="newEvent.maxParticipants = n"
+                      [class]="'px-3 py-1 rounded-lg text-xs font-bold border transition-all ' +
+                        (newEvent.maxParticipants === n
+                          ? 'border-[#FF6B6B] bg-[#FF6B6B] text-white'
+                          : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-[#FF6B6B]/50')">
+                      {{ n }}
+                    </button>
+                  }
+                </div>
+              }
+              <div class="relative">
+                <i-lucide [img]="usersIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
+                <input type="number" name="maxParticipants" [(ngModel)]="newEvent.maxParticipants"
+                  min="2" placeholder="Número de jugadores"
+                  class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
+              </div>
+            </div>
+          }
+
+          <!-- ── PASO 5: Fecha + Hora ── -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Fecha *</label>
+              <div class="relative">
+                <i-lucide [img]="calendarIcon" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i-lucide>
                 <input type="date" name="date" [(ngModel)]="newEvent.date"
+                  [min]="todayISO"
                   class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white text-sm" />
               </div>
             </div>
@@ -190,7 +485,7 @@
             </div>
           </div>
 
-          <!-- Location with autocomplete -->
+          <!-- ── PASO 6: Ubicación ── -->
           <div>
             <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Ubicación *</label>
             <div class="relative">
@@ -200,11 +495,9 @@
                 placeholder="Busca un lugar en Chile…"
                 autocomplete="off"
                 class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white" />
-              <!-- Spinner -->
               @if (isSearchingLocations) {
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-gray-300 border-t-[#FF6B6B] rounded-full animate-spin"></span>
               }
-              <!-- Suggestions dropdown -->
               @if (locationSuggestions.length > 0) {
                 <ul class="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-[#1A1A2E] border border-gray-200 dark:border-[#2D2D4A] rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
                   @for (place of locationSuggestions; track place.lat) {
@@ -220,53 +513,62 @@
                 </ul>
               }
             </div>
-            <!-- Coords badge -->
             @if (newEvent.locationLat != null) {
               <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
                 <i-lucide [img]="mapPinIcon" class="w-3 h-3"></i-lucide>
-                Ubicación confirmada
+                Ubicación confirmada · arrastra el pin para ajustar
               </p>
+              <div id="event-location-map" class="mt-2 w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-[#2D2D4A] z-0"></div>
             }
           </div>
 
-          <!-- Level + Court type (shown when a sport is selected) -->
-          @if (showLevel) {
-            <div [class]="'grid gap-4 ' + (showCourtType ? 'grid-cols-2' : 'grid-cols-1')">
-              <div>
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Nivel requerido</label>
-                <select name="level" [(ngModel)]="newEvent.level"
-                  class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white appearance-none">
-                  <option value="">Cualquier nivel</option>
-                  <option value="Principiante">Principiante</option>
-                  <option value="Intermedio">Intermedio</option>
-                  <option value="Avanzado">Avanzado</option>
-                </select>
+          <!-- ── PASO 7: Tipo de cancha (contextual por deporte) ── -->
+          @if (showCourtType) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tipo de cancha / superficie</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" (click)="newEvent.courtType = ''"
+                  [class]="'px-3 py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ' +
+                    (!newEvent.courtType ? 'border-gray-400 bg-gray-100 dark:bg-[#2D2D4A] text-gray-700 dark:text-gray-200' : 'border-gray-200 dark:border-[#2D2D4A] text-gray-400 bg-white dark:bg-[#22223A]')">
+                  Sin preferencia
+                </button>
+                @for (ct of createCourtTypes; track ct) {
+                  <button type="button" (click)="newEvent.courtType = ct"
+                    [class]="'px-3 py-1.5 rounded-lg text-sm font-semibold border-2 transition-all ' +
+                      (newEvent.courtType === ct
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-600 dark:text-gray-300 bg-white dark:bg-[#22223A] hover:border-emerald-300')">
+                    {{ ct }}
+                  </button>
+                }
               </div>
-              @if (showCourtType) {
-                <div>
-                  <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Tipo de cancha</label>
-                  <select name="courtType" [(ngModel)]="newEvent.courtType"
-                    class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white appearance-none">
-                    <option value="">Sin preferencia</option>
-                    <option value="Pasto Sintético">Pasto Sintético</option>
-                    <option value="Pasto Natural">Pasto Natural</option>
-                    <option value="Cemento">Cemento</option>
-                    <option value="Indoor">Indoor</option>
-                  </select>
-                </div>
-              }
             </div>
           }
 
-          <!-- Description -->
+          <!-- ── PASO 8: Nivel (contextual, toggle) ── -->
+          @if (showLevel) {
+            <div>
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nivel requerido</label>
+              <div class="flex gap-2">
+                @for (lvl of ['Principiante', 'Intermedio', 'Avanzado']; track lvl) {
+                  <button type="button" (click)="newEvent.level = newEvent.level === lvl ? '' : lvl"
+                    [class]="'flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all ' +
+                      (newEvent.level === lvl
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'border-gray-200 dark:border-[#2D2D4A] text-gray-500 dark:text-gray-400 bg-white dark:bg-[#22223A] hover:border-blue-300')">
+                    {{ lvl }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ── PASO 9: Descripción ── -->
           <div>
             <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-            <div class="relative">
-              <i-lucide [img]="alignLeftIcon" class="absolute left-3 top-3 w-4 h-4 text-gray-400"></i-lucide>
-              <textarea rows="3" name="description" [(ngModel)]="newEvent.description"
-                placeholder="Detalles adicionales, qué traer, nivel esperado..."
-                class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white resize-none"></textarea>
-            </div>
+            <textarea rows="3" name="description" [(ngModel)]="newEvent.description"
+              placeholder="Detalles adicionales, qué traer, nivel esperado..."
+              class="w-full bg-gray-50 dark:bg-[#22223A] border border-gray-200 dark:border-[#2D2D4A] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF6B6B] dark:text-white resize-none"></textarea>
           </div>
 
           <button type="submit"

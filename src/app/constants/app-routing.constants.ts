@@ -4,6 +4,7 @@ export const APP_ROUTES = {
   FORGOT_PASSWORD:  'forgot-password',
   DASHBOARD:        'dashboard',
   MATCH:            'match',
+  DESCUBRIR:        'descubrir',
   EVENTOS:          'eventos',
   GRUPOS:           'grupos',
   RANKING:          'ranking',

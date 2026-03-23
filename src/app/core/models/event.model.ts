@@ -45,6 +45,8 @@ export interface SportEvent {
   level?: string;
   /** Court/surface type for applicable sports, e.g. "Pasto Sintético". */
   courtType?: string;
+  /** Sport modality/format, e.g. "Fútbol 5", "Singles", "Trail". */
+  modality?: string;
   /** Number of people currently joined. */
   participants: number;
   /** Maximum capacity. */

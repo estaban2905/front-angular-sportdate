@@ -65,4 +65,14 @@ export namespace EventsActions {
   export class LoadEventsPage {
     static readonly type = '[Events] Load Events Page';
   }
+
+  export class UpdateEvent {
+    static readonly type = '[Events] Update Event';
+    constructor(public eventId: string, public changes: Partial<Omit<SportEvent, 'id'>>) {}
+  }
+
+  export class DeleteEvent {
+    static readonly type = '[Events] Delete Event';
+    constructor(public eventId: string) {}
+  }
 }

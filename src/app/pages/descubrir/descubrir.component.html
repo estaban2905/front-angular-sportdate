@@ -1,0 +1,339 @@
+<!-- descubrir.component.html -->
+<div class="p-4 pb-28 md:p-8 max-w-4xl mx-auto">
+
+  <!-- ===================================================================
+       Header
+       =================================================================== -->
+  <header class="mb-6">
+    <h1 class="text-3xl font-black text-gray-900 dark:text-white mb-1 transition-colors">
+      ⚔️ Descubrir
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm transition-colors">
+      Retos · Resultados · Calificaciones · Oponentes
+    </p>
+  </header>
+
+  <!-- ===================================================================
+       Tabs
+       =================================================================== -->
+  <div class="flex gap-1 mb-6 bg-gray-100 dark:bg-[#22223A] p-1 rounded-2xl overflow-x-auto no-scrollbar">
+    @for (tab of tabs; track tab) {
+      <button
+        (click)="activeTab.set(tab)"
+        [class]="'flex-1 min-w-max px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ' +
+          (activeTab() === tab
+            ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm'
+            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')">
+        @if (tab === 'Retos') { ⚔️ }
+        @if (tab === 'Resultados') { 🏆 }
+        @if (tab === 'Calificaciones') { ⭐ }
+        @if (tab === 'Oponentes') { 🔍 }
+        {{ tab }}
+      </button>
+    }
+  </div>
+
+  <!-- Loading global -->
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <i-lucide [img]="loaderIcon" class="w-8 h-8 text-[#FF6B6B] animate-spin"></i-lucide>
+    </div>
+  }
+
+  @if (!loading()) {
+
+  <!-- ===================================================================
+       RETOS
+       =================================================================== -->
+  @if (activeTab() === 'Retos') {
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-3 text-center border border-gray-100 dark:border-[#2D2D4A] shadow-sm">
+        <div class="text-2xl font-black text-yellow-500">{{ retosStats()['pendiente'] ?? 0 }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Pendientes</div>
+      </div>
+      <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-3 text-center border border-gray-100 dark:border-[#2D2D4A] shadow-sm">
+        <div class="text-2xl font-black text-green-500">{{ retosStats()['completado'] ?? 0 }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Completados</div>
+      </div>
+      <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-3 text-center border border-gray-100 dark:border-[#2D2D4A] shadow-sm">
+        <div class="text-2xl font-black text-blue-500">{{ retosStats()['aceptado'] ?? 0 }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Activos</div>
+      </div>
+    </div>
+
+    <!-- Nuevo reto -->
+    <button class="w-full mb-5 flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white font-bold shadow-md hover:shadow-lg hover:scale-[1.02] transition-all">
+      <i-lucide [img]="swordsIcon" class="w-5 h-5"></i-lucide>
+      Lanzar nuevo reto
+    </button>
+
+    <!-- Lista -->
+    <div class="space-y-3">
+      @for (reto of retos(); track reto.id) {
+        <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-4 border border-gray-100 dark:border-[#2D2D4A] shadow-sm hover:shadow-md transition-all">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center flex-shrink-0">
+              <i-lucide [img]="shieldIcon" class="w-6 h-6 text-white"></i-lucide>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <p class="text-xs text-gray-400 font-medium">
+                    {{ isRetador(reto) ? reto.defiadorEquipo : reto.retadoEquipo }}
+                  </p>
+                  <h3 class="font-bold text-gray-900 dark:text-white">
+                    vs {{ isRetador(reto) ? reto.retadoNombre : reto.defiadorNombre }}
+                    <span class="text-xs text-gray-400 font-normal">
+                      ({{ isRetador(reto) ? reto.retadoEquipo : reto.defiadorEquipo }})
+                    </span>
+                  </h3>
+                </div>
+                <span [class]="'px-2.5 py-1 rounded-full text-xs font-bold ' + statusConfig(reto.status).classes">
+                  {{ statusConfig(reto.status).label }}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>{{ reto.sportEmoji }} {{ reto.sport }}</span>
+                <span>📅 {{ reto.fecha }}</span>
+                <span>📍 {{ reto.lugar }}</span>
+                @if (reto.apuesta) {
+                  <span class="text-[#FF6B6B] font-semibold">🎯 {{ reto.apuesta }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (reto.status === 'pendiente' && !isRetador(reto)) {
+            <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-[#2D2D4A]">
+              <button (click)="aceptarReto(reto.id)"
+                class="flex-1 py-2 rounded-xl bg-green-500 text-white text-sm font-bold hover:bg-green-600 transition-colors">
+                Aceptar
+              </button>
+              <button (click)="rechazarReto(reto.id)"
+                class="flex-1 py-2 rounded-xl bg-gray-100 dark:bg-[#22223A] text-gray-600 dark:text-gray-400 text-sm font-bold hover:bg-gray-200 dark:hover:bg-[#2D2D4A] transition-colors">
+                Rechazar
+              </button>
+            </div>
+          }
+          @if (reto.status === 'aceptado') {
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-[#2D2D4A]">
+              <button class="w-full py-2 rounded-xl bg-blue-500 text-white text-sm font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-1.5">
+                <i-lucide [img]="chevronRight" class="w-4 h-4"></i-lucide>
+                Ver detalles del encuentro
+              </button>
+            </div>
+          }
+          @if (reto.status === 'completado' && reto.ganadorId) {
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-[#2D2D4A] flex items-center gap-2">
+              <i-lucide [img]="trophyIcon" class="w-4 h-4 text-yellow-500"></i-lucide>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                Ganador: <span class="font-bold text-green-600 dark:text-green-400">
+                  {{ reto.ganadorId === 'me' ? 'Tú 🎉' : (isRetador(reto) ? reto.retadoNombre : reto.defiadorNombre) }}
+                </span>
+              </span>
+            </div>
+          }
+        </div>
+      }
+      @empty {
+        <div class="text-center py-12 text-gray-400 dark:text-gray-600">
+          <div class="text-4xl mb-3">⚔️</div>
+          <p class="font-semibold">Sin retos todavía</p>
+          <p class="text-sm mt-1">Lanza un reto a otro equipo o jugador</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===================================================================
+       RESULTADOS
+       =================================================================== -->
+  @if (activeTab() === 'Resultados') {
+    <div class="space-y-4">
+      @for (res of resultados(); track res.id) {
+        <div [class]="'bg-white dark:bg-[#1A1A2E] rounded-2xl p-5 border border-gray-100 dark:border-[#2D2D4A] shadow-sm hover:shadow-md transition-all ' +
+          resultBorderClass(res.equipoLocalId, res.equipoVisitaId, res.golesLocal, res.golesVisita)">
+          <div class="flex items-start justify-between mb-4 gap-2">
+            <div>
+              <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-tight">{{ res.eventoTitle }}</h3>
+              <p class="text-xs text-gray-400 mt-0.5">📅 {{ res.fecha }} · 📍 {{ res.lugar }}</p>
+            </div>
+            <span class="text-xl flex-shrink-0">{{ res.sportEmoji }}</span>
+          </div>
+
+          <!-- Marcador -->
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex-1 text-center">
+              <p [class]="'text-sm font-bold truncate ' + (isMiEquipoLocal(res.equipoLocalId) ? 'text-[#FF6B6B]' : 'text-gray-700 dark:text-gray-300')">
+                {{ res.equipoLocal }}
+              </p>
+              @if (isMiEquipoLocal(res.equipoLocalId)) {
+                <span class="text-[10px] text-[#FF6B6B] font-semibold">Mi equipo</span>
+              }
+            </div>
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="text-4xl font-black text-gray-900 dark:text-white">{{ res.golesLocal }}</span>
+              <span class="text-gray-300 dark:text-gray-600 font-bold text-lg">—</span>
+              <span class="text-4xl font-black text-gray-900 dark:text-white">{{ res.golesVisita }}</span>
+            </div>
+            <div class="flex-1 text-center">
+              <p [class]="'text-sm font-bold truncate ' + (isMiEquipoVisita(res.equipoVisitaId) ? 'text-[#FF6B6B]' : 'text-gray-700 dark:text-gray-300')">
+                {{ res.equipoVisita }}
+              </p>
+              @if (isMiEquipoVisita(res.equipoVisitaId)) {
+                <span class="text-[10px] text-[#FF6B6B] font-semibold">Mi equipo</span>
+              }
+            </div>
+          </div>
+
+          @if (res.mvp) {
+            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-[#2D2D4A] flex items-center gap-2">
+              <i-lucide [img]="starIcon" class="w-4 h-4 text-yellow-400"></i-lucide>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                MVP: <span class="font-bold text-gray-700 dark:text-gray-300">{{ res.mvp }}</span>
+              </span>
+            </div>
+          }
+        </div>
+      }
+      @empty {
+        <div class="text-center py-12 text-gray-400 dark:text-gray-600">
+          <div class="text-4xl mb-3">🏆</div>
+          <p class="font-semibold">Sin resultados aún</p>
+          <p class="text-sm mt-1">Los resultados de tus eventos aparecerán aquí</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===================================================================
+       CALIFICACIONES
+       =================================================================== -->
+  @if (activeTab() === 'Calificaciones') {
+    <div class="space-y-3">
+      @for (cal of calificaciones(); track cal.id) {
+        <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-4 border border-gray-100 dark:border-[#2D2D4A] shadow-sm">
+          <div class="flex items-start gap-3">
+            <div [class]="'w-11 h-11 rounded-2xl bg-gradient-to-br ' + cal.receptorAvatar + ' flex-shrink-0 flex items-center justify-center text-white font-bold text-sm'">
+              {{ (cal.autorId === 'me' ? cal.receptorNombre : cal.autorNombre).charAt(0) }}
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <h3 class="font-bold text-gray-900 dark:text-white text-sm">
+                    {{ cal.autorId === 'me' ? 'Para ' + cal.receptorNombre : 'De ' + cal.autorNombre }}
+                  </h3>
+                  <p class="text-xs text-gray-400">
+                    @if (cal.eventoTitle) { {{ cal.eventoTitle }} · }{{ cal.createdAt | date:'d MMM' }}
+                  </p>
+                </div>
+                <div class="flex gap-0.5">
+                  @for (filled of stars(cal.rating); track $index) {
+                    <i-lucide [img]="starIcon"
+                      [class]="'w-4 h-4 ' + (filled ? 'text-yellow-400' : 'text-gray-200 dark:text-gray-600')">
+                    </i-lucide>
+                  }
+                </div>
+              </div>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">"{{ cal.comentario }}"</p>
+              <div class="mt-2 flex items-center gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-[#22223A] text-gray-500 dark:text-gray-400 font-medium">
+                  {{ cal.sport }}
+                </span>
+                <span [class]="'text-xs px-2 py-0.5 rounded-full font-medium ' +
+                  (cal.autorId !== 'me' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400')">
+                  {{ cal.autorId !== 'me' ? '↙ Recibida' : '↗ Dada' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      @empty {
+        <div class="text-center py-12 text-gray-400 dark:text-gray-600">
+          <div class="text-4xl mb-3">⭐</div>
+          <p class="font-semibold">Sin calificaciones aún</p>
+          <p class="text-sm mt-1">Participa en eventos para recibir calificaciones</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===================================================================
+       OPONENTES
+       =================================================================== -->
+  @if (activeTab() === 'Oponentes') {
+    <!-- Toggle Individual / Equipo -->
+    <div class="flex gap-1 mb-4 bg-gray-100 dark:bg-[#22223A] p-1 rounded-xl w-full">
+      <button
+        (click)="oponenteMode.set('Individual')"
+        [class]="'flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all ' +
+          (oponenteMode() === 'Individual' ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm' : 'text-gray-500 dark:text-gray-400')">
+        <i-lucide [img]="userIcon" class="w-4 h-4"></i-lucide>
+        Individual
+      </button>
+      <button
+        (click)="oponenteMode.set('Equipo')"
+        [class]="'flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all ' +
+          (oponenteMode() === 'Equipo' ? 'bg-white dark:bg-[#1A1A2E] text-[#FF6B6B] shadow-sm' : 'text-gray-500 dark:text-gray-400')">
+        <i-lucide [img]="usersIcon" class="w-4 h-4"></i-lucide>
+        Equipo
+      </button>
+    </div>
+
+    <!-- Filtros deporte -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4">
+      @for (sf of sportFilters; track sf) {
+        <button
+          (click)="sportFilter.set(sf)"
+          [class]="'px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all flex-shrink-0 ' +
+            (sportFilter() === sf
+              ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 scale-105'
+              : 'bg-white dark:bg-[#1A1A2E] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2D2D4A]')">
+          {{ sf }}
+        </button>
+      }
+    </div>
+
+    <!-- Lista perfiles -->
+    <div class="space-y-3">
+      @for (op of filteredOponentes(); track op.id) {
+        <div class="bg-white dark:bg-[#1A1A2E] rounded-2xl p-4 border border-gray-100 dark:border-[#2D2D4A] shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+          <div [class]="'w-14 h-14 rounded-2xl bg-gradient-to-br ' + op.imageGradient + ' flex-shrink-0 flex items-center justify-center text-2xl'">
+            {{ op.emoji }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-gray-900 dark:text-white text-sm">{{ op.name }}</h3>
+            <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-semibold text-gray-700 dark:text-gray-300">{{ op.level }}</span>
+              <span class="flex items-center gap-0.5">
+                <i-lucide [img]="mapPinIcon" class="w-3 h-3"></i-lucide>{{ op.location }}
+              </span>
+            </div>
+            <div class="flex gap-1.5 mt-1.5 flex-wrap">
+              @for (sport of op.sports.slice(0, 3); track sport.name) {
+                <span [class]="'text-[10px] px-1.5 py-0.5 rounded-full font-medium ' + sport.color">
+                  {{ sport.name }}
+                </span>
+              }
+            </div>
+          </div>
+          <button class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white rounded-xl text-xs font-bold hover:shadow-md hover:scale-105 transition-all">
+            <i-lucide [img]="swordsIcon" class="w-3.5 h-3.5"></i-lucide>
+            Retar
+          </button>
+        </div>
+      }
+      @empty {
+        <div class="text-center py-12 text-gray-400 dark:text-gray-600">
+          <div class="text-4xl mb-3">🔍</div>
+          <p class="font-semibold">No hay oponentes disponibles</p>
+          <p class="text-sm mt-1">Cambia el deporte o el modo</p>
+        </div>
+      }
+    </div>
+  }
+
+  } <!-- end !loading() -->
+</div>

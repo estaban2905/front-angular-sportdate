@@ -17,6 +17,7 @@
  *   events, challenges,
  *   groups, communities,
  *   leaderboard, teams, championships,
+ *   retos, resultados, calificaciones,
  *   conversations, messages
  */
 
@@ -44,6 +45,9 @@ import {
   MOCK_LEADERBOARD,
   MOCK_TEAMS,
   MOCK_CHAMPIONSHIPS,
+  MOCK_RETOS,
+  MOCK_RESULTADOS,
+  MOCK_CALIFICACIONES,
 } from '../repositories/in-memory/mock-data';
 import { Conversation, ChatMessage } from '../../store/chat/chat.model';
 
@@ -112,15 +116,38 @@ export class FirestoreSeedService {
 
   /**
    * Seeds Firestore only if the _meta/seeded document is absent.
-   * Safe to call on every app boot — it is a no-op after the first seed.
+   * Also seeds any NEW collections that were added after the initial seed.
+   * Safe to call on every app boot.
    */
   async seedIfEmpty(): Promise<void> {
     const metaRef = doc(this.db, this.p('_meta', 'seeded'));
     const exists = await this._getDocWithRetry(metaRef);
-    if (exists) return;
-    await this._writeAll();
-    await setDoc(metaRef, { at: new Date().toISOString() });
-    console.log('[FirestoreSeedService] Seed completed.');
+    if (!exists) {
+      await this._writeAll();
+      await setDoc(metaRef, { at: new Date().toISOString() });
+      console.log('[FirestoreSeedService] Seed completed.');
+    } else {
+      // Seed new collections added after the initial seed (one-shot, non-destructive)
+      await this._seedNewCollections();
+    }
+  }
+
+  /**
+   * Seeds collections that didn't exist during the initial seed.
+   * Only writes if the collection is empty.
+   */
+  private async _seedNewCollections(): Promise<void> {
+    const newCollections = ['retos', 'resultados', 'calificaciones'] as const;
+    for (const name of newCollections) {
+      const snap = await getDocs(collection(this.db, this.p(name)));
+      if (snap.empty) {
+        const ops = this._getRestoreOps(name);
+        if (ops.length > 0) {
+          await commitBatches(this.db, ops);
+          console.log(`[FirestoreSeedService] Seeded new collection: ${name} (${ops.length} docs).`);
+        }
+      }
+    }
   }
 
   /**
@@ -168,6 +195,7 @@ export class FirestoreSeedService {
       'events', 'challenges',
       'groups', 'communities',
       'leaderboard', 'teams', 'championships',
+      'retos', 'resultados', 'calificaciones',
       'conversations', 'messages', '_meta',
     ];
     await Promise.all(collections.map(c => clearCollectionPath(this.db, this.p(c))));
@@ -195,7 +223,10 @@ export class FirestoreSeedService {
     for (const op of this._getRestoreOps('communities'))   ops.push(op);
     for (const op of this._getRestoreOps('leaderboard'))   ops.push(op);
     for (const op of this._getRestoreOps('teams'))         ops.push(op);
-    for (const op of this._getRestoreOps('championships')) ops.push(op);
+    for (const op of this._getRestoreOps('championships'))  ops.push(op);
+    for (const op of this._getRestoreOps('retos'))          ops.push(op);
+    for (const op of this._getRestoreOps('resultados'))     ops.push(op);
+    for (const op of this._getRestoreOps('calificaciones')) ops.push(op);
 
     // conversations & messages
     SEED_CONVERSATIONS.forEach(conv =>
@@ -265,6 +296,18 @@ export class FirestoreSeedService {
         );
       case 'user_stats':
         return [batch => batch.set(doc(db, this.p('user_stats', 'me')), { ...MOCK_USER_STATS })];
+      case 'retos':
+        return MOCK_RETOS.map(r =>
+          batch => batch.set(doc(db, this.p('retos', r.id)), { ...r }),
+        );
+      case 'resultados':
+        return MOCK_RESULTADOS.map(r =>
+          batch => batch.set(doc(db, this.p('resultados', r.id)), { ...r }),
+        );
+      case 'calificaciones':
+        return MOCK_CALIFICACIONES.map(c =>
+          batch => batch.set(doc(db, this.p('calificaciones', c.id)), { ...c }),
+        );
       default:
         return [];
     }

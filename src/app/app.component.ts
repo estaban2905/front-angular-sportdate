@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngxs/store';
 import { SidebarComponent } from './shared/layout/sidebar/sidebar.component';
 import { BottomNavComponent } from './shared/layout/bottom-nav/bottom-nav.component';
+import { ToastComponent } from './shared/ui/toast/toast.component';
 import { AuthService } from './core/services/auth.service';
 import { AuthActions } from './store/auth/auth.actions';
 import { FirestoreSeedService } from './core/services/firestore-seed.service';
@@ -14,7 +15,7 @@ const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, BottomNavComponent],
+  imports: [RouterOutlet, SidebarComponent, BottomNavComponent, ToastComponent],
   template: `
     <div class="min-h-screen bg-[#FAFAFA] dark:bg-[#0F0F1A] flex text-[#1A1A2E] dark:text-[#F0F0F5] font-sans transition-colors duration-300">
       @if (!isAuthRoute()) {
@@ -28,6 +29,7 @@ const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
           <app-bottom-nav />
         </div>
       }
+      <app-toast />
     </div>
   `,
 })
